@@ -39,7 +39,7 @@ public class Login {
     private JButton passSearchButton;
     private JButton loginButton;
 
-    public Login() {
+    public Login(JFrame frame) throws IOException {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -48,11 +48,16 @@ public class Login {
             }
         });
 
-    }
-
-    public static void main(String[] args) throws IOException {
-        JFrame frame = new JFrame("B");
-        Login login = new Login();
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new Register(frame);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
         BufferedImage logoImg = ImageIO.read(new File("src/images/logo.png"));
 
@@ -61,10 +66,10 @@ public class Login {
 
         JLabel logoLabel = new JLabel(new ImageIcon(newImg));
 
-        login.loginLogo.setLayout(new BorderLayout());
-        login.loginLogo.add(logoLabel, BorderLayout.SOUTH);
+        loginLogo.setLayout(new BorderLayout());
+        loginLogo.add(logoLabel, BorderLayout.SOUTH);
 
-        frame.setContentPane(login.loginPanel);
+        frame.setContentPane(loginPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
