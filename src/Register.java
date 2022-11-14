@@ -1,6 +1,10 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -47,6 +51,7 @@ public class Register {
     private JButton dupCheckButton;
     private JPanel registerPanel;
     private JButton registerButton;
+    private JPanel registerLogo;
 
     public Register(JFrame frame) throws IOException {
         registerButton.addActionListener(new ActionListener() {
@@ -70,6 +75,16 @@ public class Register {
                 }
             }
         });
+
+        BufferedImage logoImg = ImageIO.read(new File("src/images/logo.png"));
+
+        Image image = new ImageIcon(logoImg).getImage();
+        Image newImg = image.getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+
+        JLabel logoLabel = new JLabel(new ImageIcon(newImg));
+
+        registerLogo.setLayout(new BorderLayout());
+        registerLogo.add(logoLabel, BorderLayout.SOUTH);
 
         frame.setContentPane(registerPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

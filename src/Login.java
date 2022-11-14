@@ -36,7 +36,7 @@ public class Login {
     }
 
     private JButton registerButton;
-    private JButton passSearchButton;
+    private JButton pwFinderButton;
     private JButton loginButton;
 
     public Login(JFrame frame) throws IOException {
@@ -53,6 +53,17 @@ public class Login {
             public void actionPerformed(ActionEvent e) {
                 try {
                     new Register(frame);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        pwFinderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new PwFinder(frame);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
