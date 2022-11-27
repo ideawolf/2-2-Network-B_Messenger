@@ -21,6 +21,7 @@ public class ChatMain {
         pm1.add(item2);
         pm1.add(item3);
 
+
         friendList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if(e.getButton()==MouseEvent.BUTTON3)
