@@ -45,6 +45,15 @@ public class Login {
             public void actionPerformed(ActionEvent e) {
                 Login.setUserId(getId());
                 Login.setUserPassword(getPw());
+
+                System.out.println(userId);
+                System.out.println(userPassword);
+
+                try {
+                    new ChatMain(frame);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
