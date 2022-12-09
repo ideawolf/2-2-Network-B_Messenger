@@ -12,7 +12,7 @@ public class Server {
 
         ExecutorService pool = Executors.newFixedThreadPool(20);
 
-        Connection con = DriverManager.getConnection("jdbc:sqlite:/Users/ideawolf/Documents/GitHub/B_Messenger/db.sqlite3");
+        Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
 
         // PostID is Auto_increment.
