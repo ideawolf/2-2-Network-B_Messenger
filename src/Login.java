@@ -1,12 +1,9 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class Login extends JFrame {
 
@@ -16,7 +13,7 @@ public class Login extends JFrame {
         setLocationRelativeTo(null);
 
         // 로고 이미지
-        BufferedImage logoImg = ImageIO.read(new File("src/images/logo.png"));
+        BufferedImage logoImg = ImageIO.read(new File("images/logo.png"));
 
         Image image = new ImageIcon(logoImg).getImage();
         Image newImg = image.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
@@ -64,6 +61,8 @@ public class Login extends JFrame {
         registerButton.setContentAreaFilled(false);
         registerButton.setBorderPainted(false);
 
+        registerButton.addActionListener(e -> new Register());
+
         JButton pwdButton = new JButton("비밀번호 변경");
         pwdButton.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         pwdButton.setHorizontalAlignment(JLabel.CENTER);
@@ -74,6 +73,7 @@ public class Login extends JFrame {
         buttonPanel.add(loginButton);
         buttonPanel.add(registerButton);
         buttonPanel.add(pwdButton);
+
 
 
         add(buttonPanel);
