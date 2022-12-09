@@ -2,20 +2,18 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.*;
 
 public class Register extends JFrame {
 
-    public static void main(String[] args) {
-        new Register();
-    }
     Register() {
-        setSize(400,600);
+        setSize(400, 600);
         setLocationRelativeTo(null);
         setBackground(Color.WHITE);
 
         // 아이디와 닉네임, 이름, 이메일, 생년월일 입력
-        JPanel registerFormPanel = new JPanel(new GridLayout(7,1,0,20));
-        registerFormPanel.setBorder(new EmptyBorder(100,20,100,20));
+        JPanel registerFormPanel = new JPanel(new GridLayout(7, 1, 0, 20));
+        registerFormPanel.setBorder(new EmptyBorder(100, 20, 100, 20));
         registerFormPanel.setBackground(Color.WHITE);
 
         JPanel newIdForm = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -23,11 +21,38 @@ public class Register extends JFrame {
         JLabel newIdDesc = new JLabel("  아이디 : ");
         newIdDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         JTextField newIdField = new JTextField(20);
+        JButton newIdCheck = new JButton("중복체크");
+
+        newIdField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                newIdCheck.setEnabled(true);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+        newIdCheck.addActionListener(e -> {
+            String newId = newIdField.getText();
+            // db에서 id 목록 가져와서 newId랑 비교
+
+
+            // 중복체크 성공하면 setEnabled false로 바꾸기
+            newIdCheck.setEnabled(false);
+        });
 
         newIdForm.add(newIdDesc);
         newIdForm.add(newIdField);
+        newIdForm.add(newIdCheck);
 
-        JPanel newNicknameForm = new JPanel(new GridLayout(1,2));
+        JPanel newNicknameForm = new JPanel(new GridLayout(1, 2));
         newNicknameForm.setBackground(Color.WHITE);
         JLabel newNicknameDesc = new JLabel("  닉네임 : ");
         newNicknameDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
@@ -80,6 +105,8 @@ public class Register extends JFrame {
         registerButton.setFocusPainted(false);
         registerButton.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
 
+        registerButton.addActionListener(e -> dispose());
+
         registerFormPanel.add(newNameForm);
         registerFormPanel.add(newIdForm);
         registerFormPanel.add(newPwdForm);
@@ -90,7 +117,6 @@ public class Register extends JFrame {
 
         add(registerFormPanel);
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
