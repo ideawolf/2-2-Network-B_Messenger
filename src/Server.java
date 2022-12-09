@@ -52,17 +52,17 @@ public class Server {
         }
 
 
-        public int register(JSONObject input) throws SQLException {
+        public int register(JSONObject recieve_json) throws SQLException {
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
             // PostID is Auto_increment.
             String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
                     "VALUES ( ?, ?, ?, ?);";
 
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, input.getString("name"));
-            ps.setString(2, input.getString("password"));
-            ps.setString(3, input.getString("nickname"));
-            ps.setString(4, input.getString("email"));
+            ps.setString(1, recieve_json.getString("name"));
+            ps.setString(2, recieve_json.getString("password"));
+            ps.setString(3, recieve_json.getString("nickname"));
+            ps.setString(4, recieve_json.getString("email"));
 
             int updateResult = ps.executeUpdate();
 
