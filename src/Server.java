@@ -37,7 +37,7 @@ public class Server {
 
                     JSONObject recieve_json = new JSONObject(input);
 
-                    boolean status = false;
+                    int status = 400;
 
                     if(recieve_json.getString("command").equals("REGISTER")){
                         status = register(recieve_json);
@@ -49,11 +49,10 @@ public class Server {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
         }
 
 
-        public boolean register(JSONObject input) throws SQLException {
+        public int register(JSONObject input) throws SQLException {
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
             // PostID is Auto_increment.
             String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
@@ -68,10 +67,10 @@ public class Server {
             int updateResult = ps.executeUpdate();
 
             if(updateResult > 0){
-                return true;
+                return 200;
             }
 
-            return false;
+            return 400;
         }
 
 
