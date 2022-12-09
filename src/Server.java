@@ -35,12 +35,12 @@ public class Server {
                     String input = in.nextLine();
                     System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
 
-                    JSONObject recieve_json = new JSONObject(input);
+                    JSONObject receive_json = new JSONObject(input);
 
                     int status = 400;
 
-                    if(recieve_json.getString("command").equals("REGISTER")){
-                        status = register(recieve_json);
+                    if(receive_json.getString("command").equals("REGISTER")){
+                        status = register(receive_json);
                     }
 
                     System.out.println("result: " + status);
@@ -52,17 +52,17 @@ public class Server {
         }
 
 
-        public int register(JSONObject recieve_json) throws SQLException {
+        public int register(JSONObject receive_json) throws SQLException {
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
             // PostID is Auto_increment.
             String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
                     "VALUES ( ?, ?, ?, ?);";
 
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, recieve_json.getString("name"));
-            ps.setString(2, recieve_json.getString("password"));
-            ps.setString(3, recieve_json.getString("nickname"));
-            ps.setString(4, recieve_json.getString("email"));
+            ps.setString(1, receive_json.getString("name"));
+            ps.setString(2, receive_json.getString("password"));
+            ps.setString(3, receive_json.getString("nickname"));
+            ps.setString(4, receive_json.getString("email"));
 
             int updateResult = ps.executeUpdate();
 
