@@ -3,7 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-public class PwFinder {
+public class PwFinder_o {
 
     private String username;
 
@@ -31,7 +31,7 @@ public class PwFinder {
     private JTextField idField;
     private JLabel pwFinderDesc;
 
-    public PwFinder(JFrame frame) throws IOException {
+    public PwFinder_o(JFrame frame) throws IOException {
 
         pwFinderButton.addActionListener(new ActionListener() {
             @Override
@@ -44,7 +44,7 @@ public class PwFinder {
                 System.out.println(id);
 
                 try {
-                    new Login(frame);
+                    new Login_o(frame);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
