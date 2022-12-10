@@ -1,5 +1,11 @@
 ### Interface (Request and Response Format)
 
+#### List of access-token for test
+1. 00000000-0000-0000-0000-000000000001
+2. 00000000-0000-0000-0000-000000000002
+3. 00000000-0000-0000-0000-000000000003
+
+
 #### Register
 - request : {"command":"REGISTER", "id":"user id", "name":"NAME", "password":"PASSWORD", "nickname":"NICKNAME", "email":"
   Example@email.com"}
@@ -13,3 +19,10 @@
 - response :
   - Success: {"body":"Login Success","status":200, "access-token": "계정 토큰값"}
   - Fail: {"body":"Login Failed","status":400}
+
+
+#### Get Friends List
+- request :  {"command":"GET_FRIENDS", "access-token":"access-token"}
+- response
+  - Success: { "body":[{"user_id":"test_user_2","nickname":"test_user_2","email":"test_user_2@email.com"},{"user_id":"test_user_3","nickname":"test_user_3","email":"test_user_3@email.com"}],"status":200 }
+  - Fail: TODO

@@ -10,11 +10,16 @@ import java.util.concurrent.*;
 
 //import com.auth0.jwt.JWT;
 import model.Response;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Server {
     static Map<UUID, String> user_token_Map = new HashMap<>();
     public static void main(String[] args) throws IOException {
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test_user_1");
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_1");
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000003"), "test_user_1");
+
         ServerSocket listener = new ServerSocket(35014);
 
         ExecutorService pool = Executors.newFixedThreadPool(20);
@@ -39,21 +44,27 @@ public class Server {
 
                 while (true) {
                     String input = in.readLine();
-                    System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
+                    if(input != null){
+                        System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
 
-                    JSONObject receive_json = new JSONObject(input);
+                        JSONObject receive_json = new JSONObject(input);
 
-                    JSONObject response = new JSONObject();
+                        JSONObject response = new JSONObject();
+                        response.put("status", 400);
+                        response.put("body", "Server Do Nothing");
 
-                    if(receive_json.getString("command").equals("REGISTER")){
-                        response = register(receive_json);
+                        if(receive_json.getString("command").equals("REGISTER")){
+                            response = register(receive_json);
+                        }
+                        if(receive_json.getString("command").equals("LOGIN")){
+                            response = login(receive_json);
+                        }
+                        if(receive_json.getString("command").equals("GET_FRIENDS")){
+                            response = get_friends(receive_json);
+                        }
+
+                        answerToClient(response);
                     }
-                    if(receive_json.getString("command").equals("LOGIN")){
-                        response = login(receive_json);
-                    }
-
-
-                    answerToClient(response);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -137,30 +148,40 @@ public class Server {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            String query = "select user_id FROM user WHERE user_id =? and password = ?;";
+            String query = "select to_user_id FROM friend WHERE from_user_id =?;";
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, receive_json.getString("name"));
-            ps.setString(2, receive_json.getString("password"));
+            ps.setString(1, userid);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                UUID uuid = UUID.randomUUID();
+            JSONArray friendsArray = new JSONArray();
 
-                response.put("status", 200);
-                response.put("body", "Login Success");
-                response.put("access-token", uuid);
+            while (rs.next()) {
+                String query2 = "select * FROM user WHERE user_id =?;";
+                PreparedStatement ps2 = con.prepareStatement(query2);
+                ps2.setString(1, rs.getString("to_user_id"));
+                ResultSet rs2 = ps2.executeQuery();
 
+                while (rs2.next()) {
+                    HashMap<String, String> userinfo = new HashMap<>();
+                    userinfo.put("user_id", rs2.getString("user_id"));
+                    userinfo.put("name", rs2.getString("name"));
+                    userinfo.put("nickname", rs2.getString("nickname"));
+                    userinfo.put("email", rs2.getString("email"));
 
-                user_token_Map.put(uuid, rs.getString("user_id"));
-
-            } else {
-
-                response.put("status", 400);
-                response.put("body", "Login Failed");
+                    friendsArray.put(new JSONObject(userinfo));
+                }
 
             }
+
+
+            response.put("body", friendsArray);
+            response.put("status", 200);
 
             return response;
         }
