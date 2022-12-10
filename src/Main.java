@@ -3,6 +3,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+import model.Response;
 import org.json.JSONObject;
 
 public class Main {
@@ -13,11 +16,16 @@ public class Main {
         json.put("password", "test_password");
         json.put("nickname", "test_nickname");
         json.put("email", "test_email@email.com");
-        Socket s = new Socket("localhost", 35014);
+        Socket socket = new Socket("localhost", 35014);
         try (OutputStreamWriter out = new OutputStreamWriter(
-                s.getOutputStream(), StandardCharsets.UTF_8)) {
+                socket.getOutputStream(), StandardCharsets.UTF_8)) {
             out.write(json.toString());
         }
+        var in = new Scanner(socket.getInputStream());
+        while(true){
+            Response response =
+        }
+
 
         new Login();
     }

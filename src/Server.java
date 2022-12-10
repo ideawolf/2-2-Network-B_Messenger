@@ -3,6 +3,8 @@ import java.io.*;
 import java.sql.*;
 import java.util.Scanner;
 import java.util.concurrent.*;
+
+import model.Response;
 import org.json.JSONObject;
 
 public class Server {
@@ -30,6 +32,7 @@ public class Server {
 
             try {
                 var in = new Scanner(socket.getInputStream());
+                var out = new PrintWriter(socket.getOutputStream(), true);
 
                 while (in.hasNextLine()) {
                     String input = in.nextLine();
@@ -37,14 +40,15 @@ public class Server {
 
                     JSONObject receive_json = new JSONObject(input);
 
-                    int status = 400;
+                    Response response = new Response(400, new JSONObject());
 
                     if(receive_json.getString("command").equals("REGISTER")){
-                        status = register(receive_json);
+                        response = register(receive_json, socket);
                     }
 
-                    System.out.println("result: " + status);
+                    System.out.println("result: " + response.toString());
 
+                    out.println(response);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -52,7 +56,11 @@ public class Server {
         }
 
 
-        public int register(JSONObject receive_json) throws SQLException {
+        public Response register(JSONObject receive_json, Socket socket) throws SQLException {
+            Response response;
+            JSONObject response_json = new JSONObject();
+            int response_status = 400;
+
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
             // PostID is Auto_increment.
             String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
@@ -66,11 +74,49 @@ public class Server {
 
             int updateResult = ps.executeUpdate();
 
+
             if(updateResult > 0){
-                return 200;
+                response_json.put("result", "success");
+                response_status = 200;
+            } else {
+                response_json.put("result", "error");
             }
 
-            return 400;
+            response = new Response(response_status, response_json);
+
+            return response;
+        }
+
+
+        public Response check_id(JSONObject receive_json, Socket socket) throws SQLException {
+            Response response;
+            JSONObject response_json = new JSONObject();
+            int response_status = 400;
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+            // PostID is Auto_increment.
+            String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
+                    "VALUES ( ?, ?, ?, ?);";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, receive_json.getString("name"));
+            ps.setString(2, receive_json.getString("password"));
+            ps.setString(3, receive_json.getString("nickname"));
+            ps.setString(4, receive_json.getString("email"));
+
+            int updateResult = ps.executeUpdate();
+
+
+            if(updateResult > 0){
+                response_json.put("result", "success");
+                response_status = 200;
+            } else {
+                response_json.put("result", "error");
+            }
+
+            response = new Response(response_status, response_json);
+
+            return response;
         }
 
 
