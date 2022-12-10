@@ -11,21 +11,28 @@ import java.net.Socket;
 public class Register extends JFrame {
 
     Register() {
-        setSize(400, 600);
+        setSize(400,550);
+        setResizable(false);
         setLocationRelativeTo(null);
-        setBackground(Color.WHITE);
+        setLayout(null);
+        getContentPane().setBackground(Color.WHITE);
 
         // 아이디와 닉네임, 이름, 이메일, 생년월일 입력
-        JPanel registerFormPanel = new JPanel(new GridLayout(7, 1, 0, 20));
-        registerFormPanel.setBorder(new EmptyBorder(100, 20, 100, 20));
-        registerFormPanel.setBackground(Color.WHITE);
-
-        JPanel newIdForm = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        newIdForm.setBackground(Color.WHITE);
         JLabel newIdDesc = new JLabel("  아이디 : ");
+        newIdDesc.setBounds(25,50,100,30);
         newIdDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+
         JTextField newIdField = new JTextField(20);
+        newIdField.setBounds(125,50,150,30);
+
         JButton newIdCheck = new JButton("중복체크");
+        newIdCheck.setBounds(275,50,100,30);
+        newIdCheck.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+        newIdCheck.setHorizontalAlignment(JLabel.CENTER);
+        newIdCheck.setForeground(Color.BLACK);
+        newIdCheck.setBackground(Color.WHITE);
+        newIdCheck.setFocusPainted(false);
+        newIdCheck.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
 
         newIdField.addKeyListener(new KeyListener() {
             @Override
@@ -52,56 +59,67 @@ public class Register extends JFrame {
             newIdCheck.setEnabled(false);
         });
 
-        newIdForm.add(newIdDesc);
-        newIdForm.add(newIdField);
-        newIdForm.add(newIdCheck);
+        add(newIdDesc);
+        add(newIdField);
+        add(newIdCheck);
 
-        JPanel newNicknameForm = new JPanel(new GridLayout(1, 2));
-        newNicknameForm.setBackground(Color.WHITE);
         JLabel newNicknameDesc = new JLabel("  닉네임 : ");
+        newNicknameDesc.setBounds(25,100,100,30);
         newNicknameDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         JTextField newNicknameField = new JTextField(20);
+        newNicknameField.setBounds(125,100,250,30);
 
-        newNicknameForm.add(newNicknameDesc);
-        newNicknameForm.add(newNicknameField);
+        add(newNicknameDesc);
+        add(newNicknameField);
 
-        JPanel newNameForm = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        newNameForm.setBackground(Color.WHITE);
         JLabel newNameDesc = new JLabel("    이름 : ");
+        newNameDesc.setBounds(25,150,100,30);
         newNameDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         JTextField newNameField = new JTextField(20);
+        newNameField.setBounds(125,150,250,30);
 
-        newNameForm.add(newNameDesc);
-        newNameForm.add(newNameField);
+        add(newNameDesc);
+        add(newNameField);
 
-        JPanel newEmailForm = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        newEmailForm.setBackground(Color.WHITE);
         JLabel newEmailDesc = new JLabel("  이메일 : ");
+        newEmailDesc.setBounds(25,200,100,30);
         newEmailDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         JTextField newEmailField = new JTextField(20);
+        newEmailField.setBounds(125,200,250,30);
 
-        newEmailForm.add(newEmailDesc);
-        newEmailForm.add(newEmailField);
+        add(newEmailDesc);
+        add(newEmailField);
 
-        JPanel newBirthForm = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        newBirthForm.setBackground(Color.WHITE);
         JLabel newBirthDesc = new JLabel("생년월일 : ");
+        newBirthDesc.setBounds(25,250,100,30);
         newBirthDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         JTextField newBirthField = new JTextField(20);
+        newBirthField.setBounds(125,250,250,30);
 
-        newBirthForm.add(newBirthDesc);
-        newBirthForm.add(newBirthField);
 
-        JPanel newPwdForm = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        newPwdForm.setBackground(Color.WHITE);
+        add(newBirthDesc);
+        add(newBirthField);
+
         JLabel newPwdDesc = new JLabel("비밀번호 : ");
+        newPwdDesc.setBounds(25,300,100,30);
         newPwdDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         JPasswordField newPwdField = new JPasswordField(20);
+        newPwdField.setBounds(125,300,250,30);
 
-        newPwdForm.add(newPwdDesc);
-        newPwdForm.add(newPwdField);
+        add(newPwdDesc);
+        add(newPwdField);
+
+        JLabel newPwdCheckDesc = new JLabel("비밀번호 확인 : ");
+        newPwdCheckDesc.setBounds(25,350,100,30);
+        newPwdCheckDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+        JPasswordField newPwdCheckField = new JPasswordField(20);
+        newPwdCheckField.setBounds(125,350,250,30);
+
+        add(newPwdCheckDesc);
+        add(newPwdCheckField);
 
         JButton registerButton = new JButton("회원가입 완료");
+        registerButton.setBounds(100,400,200,30);
         registerButton.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         registerButton.setHorizontalAlignment(JLabel.CENTER);
         registerButton.setForeground(Color.BLACK);
@@ -148,17 +166,7 @@ public class Register extends JFrame {
             }
         });
 
-        registerFormPanel.add(newNameForm);
-        registerFormPanel.add(newIdForm);
-        registerFormPanel.add(newPwdForm);
-        registerFormPanel.add(newNicknameForm);
-        registerFormPanel.add(newEmailForm);
-        registerFormPanel.add(newBirthForm);
-        registerFormPanel.add(registerButton);
-
-        add(registerFormPanel);
-
+        add(registerButton);
         setVisible(true);
     }
-
 }
