@@ -78,14 +78,15 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
-                    "VALUES ( ?, ?, ?, ?);";
+            String query = "INSERT INTO user (user_id, password, name, nickname, email)\n" +
+                    "VALUES ( ?, ?, ?, ?, ?);";
 
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, receive_json.getString("name"));
+            ps.setString(1, receive_json.getString("id"));
             ps.setString(2, receive_json.getString("password"));
-            ps.setString(3, receive_json.getString("nickname"));
-            ps.setString(4, receive_json.getString("email"));
+            ps.setString(3, receive_json.getString("name"));
+            ps.setString(4, receive_json.getString("nickname"));
+            ps.setString(5, receive_json.getString("email"));
 
             int updateResult = ps.executeUpdate();
 
@@ -108,6 +109,38 @@ public class Server {
 
             String query = "select user_id FROM user WHERE user_id =? and password = ?;";
             PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, receive_json.getString("id"));
+            ps.setString(2, receive_json.getString("password"));
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                UUID uuid = UUID.randomUUID();
+
+                response.put("status", 200);
+                response.put("body", "Login Success");
+                response.put("access-token", uuid);
+
+
+                user_token_Map.put(uuid, rs.getString("user_id"));
+
+            } else {
+
+                response.put("status", 400);
+                response.put("body", "Login Failed");
+
+            }
+
+            return response;
+        }
+
+        public JSONObject get_friends(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select user_id FROM user WHERE user_id =? and password = ?;";
+            PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, receive_json.getString("name"));
             ps.setString(2, receive_json.getString("password"));
             ResultSet rs = ps.executeQuery();
@@ -118,6 +151,7 @@ public class Server {
                 response.put("status", 200);
                 response.put("body", "Login Success");
                 response.put("access-token", uuid);
+
 
                 user_token_Map.put(uuid, rs.getString("user_id"));
 
