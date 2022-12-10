@@ -75,11 +75,8 @@ public class Login extends JFrame {
 
                 JSONObject response = new JSONObject(response_str);
 
-                int status = response.getInt("status");
-                String body = response.getString("body");
 
-                System.out.println("Status : " + status);
-                System.out.println("body : " + body);
+                System.out.println("reponse : " + response);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
