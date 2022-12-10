@@ -1,5 +1,6 @@
 import java.net.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -31,16 +32,16 @@ public class Server {
             System.out.println("Connected: " + socket);
 
             try {
-                var in = new Scanner(socket.getInputStream());
-                var out = new PrintWriter(socket.getOutputStream(), true);
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                while (in.hasNextLine()) {
-                    String input = in.nextLine();
+                while (true) {
+                    String input = in.readLine();
                     System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
 
                     JSONObject receive_json = new JSONObject(input);
 
-                    Response response = new Response(400, new JSONObject());
+                    JSONObject response = new JSONObject();
 
                     if(receive_json.getString("command").equals("REGISTER")){
                         response = register(receive_json, socket);
@@ -48,7 +49,10 @@ public class Server {
 
                     System.out.println("result: " + response.toString());
 
-                    out.println(response);
+                    out.write(response.toString());
+                    out.newLine();
+                    out.flush();
+
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -56,10 +60,9 @@ public class Server {
         }
 
 
-        public Response register(JSONObject receive_json, Socket socket) throws SQLException {
-            Response response;
-            JSONObject response_json = new JSONObject();
-            int response_status = 400;
+        public JSONObject register(JSONObject receive_json, Socket socket) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", "400");
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
             // PostID is Auto_increment.
@@ -76,45 +79,12 @@ public class Server {
 
 
             if(updateResult > 0){
-                response_json.put("result", "success");
-                response_status = 200;
+                response.put("status", "200");
+                response.put("body", "Register Success");
             } else {
-                response_json.put("result", "error");
+                response.put("body", "Register 400");
+                response.put("body", "Register failed");
             }
-
-            response = new Response(response_status, response_json);
-
-            return response;
-        }
-
-
-        public Response check_id(JSONObject receive_json, Socket socket) throws SQLException {
-            Response response;
-            JSONObject response_json = new JSONObject();
-            int response_status = 400;
-
-            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
-            // PostID is Auto_increment.
-            String query = "INSERT INTO user (user_id, password, nickname, email)\n" +
-                    "VALUES ( ?, ?, ?, ?);";
-
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, receive_json.getString("name"));
-            ps.setString(2, receive_json.getString("password"));
-            ps.setString(3, receive_json.getString("nickname"));
-            ps.setString(4, receive_json.getString("email"));
-
-            int updateResult = ps.executeUpdate();
-
-
-            if(updateResult > 0){
-                response_json.put("result", "success");
-                response_status = 200;
-            } else {
-                response_json.put("result", "error");
-            }
-
-            response = new Response(response_status, response_json);
 
             return response;
         }
