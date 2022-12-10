@@ -68,7 +68,7 @@ public class Server {
 
         public JSONObject register(JSONObject receive_json) throws SQLException {
             JSONObject response = new JSONObject();
-            response.put("status", "400");
+            response.put("status", 400);
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
             // PostID is Auto_increment.
@@ -85,10 +85,10 @@ public class Server {
 
 
             if(updateResult > 0){
-                response.put("status", "200");
+                response.put("status", 200);
                 response.put("body", "Register Success");
             } else {
-                response.put("body", "Register 400");
+                response.put("status", 400);
                 response.put("body", "Register failed");
             }
 
