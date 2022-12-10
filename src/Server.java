@@ -32,7 +32,6 @@ public class Server {
             System.out.println("Connected: " + socket);
 
             try {
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                 while (true) {
@@ -44,23 +43,30 @@ public class Server {
                     JSONObject response = new JSONObject();
 
                     if(receive_json.getString("command").equals("REGISTER")){
-                        response = register(receive_json, socket);
+                        response = register(receive_json);
                     }
 
-                    System.out.println("result: " + response.toString());
 
-                    out.write(response.toString());
-                    out.newLine();
-                    out.flush();
-
+                    answerToClient(response);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
+        public void answerToClient(JSONObject response) throws IOException {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-        public JSONObject register(JSONObject receive_json, Socket socket) throws SQLException {
+            out.write(response.toString());
+            out.newLine();
+            out.flush();
+
+            System.out.println("result 전송함: " + response.toString());
+
+        }
+
+
+        public JSONObject register(JSONObject receive_json) throws SQLException {
             JSONObject response = new JSONObject();
             response.put("status", "400");
 

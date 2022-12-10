@@ -25,12 +25,13 @@ public class Main {
             out.newLine();
             out.flush();
 
-            int attempts = 0;
-            while(!in.ready() && attempts < 1000)
-            {
-                attempts++;
-                Thread.sleep(10);
-            }
+//
+//            int attempts = 0;
+//            while(!in.ready() && attempts < 1000)
+//            {
+//                attempts++;
+//                Thread.sleep(10);
+//            }
 
             String response_str = in.readLine();
 
