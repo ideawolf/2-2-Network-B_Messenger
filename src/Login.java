@@ -61,8 +61,8 @@ public class Login extends JFrame {
             try {
                 JSONObject json = new JSONObject();
                 json.put("command", "LOGIN");
-                json.put("name", "userId1");
-                json.put("password", "userPassword1");
+                json.put("name", idField);
+                json.put("password", pwField);
                 Socket socket = new Socket("localhost", 35014);
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
