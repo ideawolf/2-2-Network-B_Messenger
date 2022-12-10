@@ -146,7 +146,6 @@ public class Register extends JFrame {
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-
         });
 
         registerFormPanel.add(newNameForm);
