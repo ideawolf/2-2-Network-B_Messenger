@@ -8,7 +8,7 @@
   - Fail: {"body":"Register Failed","status":400}
 
 
-#### Register
+#### Login
 - request : {"command":"LOGIN", "id":"ID", "password":"PASSWORD"}
 - response :
   - Success: {"body":"Login Success","status":200, "access-token": "계정 토큰값"}
