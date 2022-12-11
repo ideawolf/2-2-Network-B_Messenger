@@ -85,6 +85,9 @@ public class Server {
                                 if(receive_json.getString("command").equals("EDIT_INFO")){
                                     response = edit_info(receive_json);
                                 }
+                                if(receive_json.getString("command").equals("ADD_FRIEND")){
+                                    response = add_friend(receive_json);
+                                }
                                 answerToClient(response);
 
                                 socket.close();
@@ -182,6 +185,34 @@ public class Server {
                 response.put("status", 400);
                 response.put("body", "Login Failed");
 
+            }
+
+
+            con.close();
+
+            return response;
+        }
+
+        public JSONObject add_friend(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "INSERT INTO friend (from_user_id, to_user_id)\n" +
+                    "VALUES ( ?, ?);";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, receive_json.getString("id"));
+            ps.setString(2, receive_json.getString("friend_id"));
+
+            int updateResult = ps.executeUpdate();
+
+            if(updateResult > 0){
+                response.put("status", 200);
+                response.put("body", "Add Success");
+            } else {
+                response.put("status", 400);
+                response.put("body", "Add failed");
             }
 
 

@@ -253,7 +253,7 @@ public class ChatMain extends JFrame {
 
     class searched extends JLabel {
 
-        searched(JSONObject user) {
+        searched(JSONObject user, String myId) {
             super(user.getString("user_id"));
             setFont(new Font("맑은 고딕", Font.BOLD, 12));
             Container comp = this;
@@ -280,7 +280,35 @@ public class ChatMain extends JFrame {
             });
 
             item2.addActionListener(e -> {
-                // 채팅 시작
+                // 친구 추가
+                try {
+                    JSONObject json = new JSONObject();
+                    json.put("command", "ADD_FRIEND");
+                    json.put("id", myId);
+                    json.put("name", user.getString("user_id"));
+                    Socket socket = new Socket("localhost", 35014);
+                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                    out.write(json.toString());
+                    out.newLine();
+                    out.flush();
+
+                    String response_str = in.readLine();
+
+                    JSONObject response = new JSONObject(response_str);
+
+                    int status = response.getInt("status");
+                    String body = response.getString("body");
+
+                    System.out.println("Status : " + status);
+                    System.out.println("body : " + body);
+
+                    JOptionPane.showOptionDialog(null, "친구추가 완료", "알림",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             });
 
             addMouseListener(new MouseAdapter() {

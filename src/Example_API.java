@@ -1,11 +1,14 @@
+import function.Encrypt;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -199,6 +202,37 @@ public class Example_API {
 
             }
 
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void add_friend(){
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "ADD_FRIEND");
+            json.put("id", "");
+            json.put("name", "");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+
+            JSONObject response = new JSONObject(response_str);
+
+            int status = response.getInt("status");
+            String body = response.getString("body");
+
+            System.out.println("Status : " + status);
+            System.out.println("body : " + body);
+
+            JOptionPane.showOptionDialog(null, "친구추가 완료", "알림",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
