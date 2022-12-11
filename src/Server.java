@@ -59,12 +59,8 @@ public class Server {
                             if(receive_json.getString("command").equals("LOGIN")){
                                 response = login(receive_json);
                                 answerToClient(response);
-                                OneServer oneServer = new OneServer();
-                                Map<String, BufferedWriter> oneBuff = new HashMap<>();
-                                oneBuff.put(logged_in_user_id, out);
-                                OneServer.setUserid_to_clientwriter(oneBuff);
+                                OneServer oneServer = new OneServer(logged_in_user_id, out);
                                 oneServer.run();
-
 
                             } else {    // Socket 유지 할 필요 없음
                                 if(receive_json.getString("command").equals("REGISTER")){

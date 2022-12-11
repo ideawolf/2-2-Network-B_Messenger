@@ -12,20 +12,21 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class OneServer {
-    static Map<String, BufferedWriter> userid_to_clientwriter = new HashMap<>();
+    String ownUser;
+    BufferedWriter out;
 
-    public static void setUserid_to_clientwriter(Map<String, BufferedWriter> userid_to_clientwriter) {
-        OneServer.userid_to_clientwriter = userid_to_clientwriter;
+    public OneServer(String ownUser, BufferedWriter out) {
+        this.ownUser = ownUser;
+        this.out = out;
     }
 
     public void run() throws InterruptedException, IOException {
         while(true){
-            var out = userid_to_clientwriter.get("test_user_1");
             Thread.sleep(100);
 
             JSONObject testJson = new JSONObject();
 
-            testJson.put("body", "Test");
+            testJson.put("body", "Test, You are " + ownUser);
 
             out.write(testJson.toString());
             out.newLine();
