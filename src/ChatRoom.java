@@ -53,7 +53,7 @@ public class ChatRoom extends Frame {
             int option = JOptionPane.showOptionDialog(null, splitStr.get(splitStr.size() - 1) + " 파일을 전송하시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"보내기", "취소"}, "보내기");
             if (option == 0) {
                 chatList.append("유저가 파일을 전송하려고 합니다\n");
-                //FileIO.FileSend(fileChooser.getSelectedFile());
+                //function.FileIO.FileSend(fileChooser.getSelectedFile());
             }
         });
 
