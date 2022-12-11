@@ -56,23 +56,8 @@ public class Server {
                             JSONObject response = new JSONObject();
                             response.put("status", 400);
                             response.put("body", "Server Do Nothing");
-
                             if(receive_json.getString("command").equals("LOGIN")){
                                 response = login(receive_json);
-<<<<<<< Updated upstream
-                            }
-                            if(receive_json.getString("command").equals("GET_FRIENDS")){
-                                response = get_friends(receive_json);
-                            }
-                            if(receive_json.getString("command").equals("GET_USER_INFO")){
-                                response = get_user_info(receive_json);
-                            }
-                            if(receive_json.getString("command").equals("GET_USER_ROOM")){
-                                response = get_user_room(receive_json);
-                            }
-                            if(receive_json.getString("command").equals("GET_ALL_ID")){
-                                response = get_all_id(receive_json);
-=======
                                 answerToClient(response);
                                 OneServer oneServer = new OneServer();
                                 Map<String, BufferedWriter> oneBuff = new HashMap<>();
@@ -98,7 +83,6 @@ public class Server {
                                 answerToClient(response);
 
                                 socket.close();
->>>>>>> Stashed changes
                             }
 
                         }
