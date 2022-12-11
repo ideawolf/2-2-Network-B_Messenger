@@ -33,18 +33,15 @@ public class Example_API {
             out.write(json.toString());
             out.newLine();
             out.flush();
-//
-//            int attempts = 0;
-//            while(!in.ready() && attempts < 1000)
-//            {
-//                attempts++;
-//                Thread.sleep(10);
-//            }
 
             while(true){
                 String response_str = in.readLine();
 
-                JSONObject response = new JSONObject(response_str);
+                if(response_str == null){
+                    Thread.sleep(10);
+                    continue;
+                }
+                JSONObject response = new  JSONObject(response_str);
 
                 System.out.println("reponse: " + response);
             }

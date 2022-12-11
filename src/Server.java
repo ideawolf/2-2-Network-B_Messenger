@@ -1,5 +1,6 @@
 import java.net.*;
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 
 public class Server {
     static Map<UUID, String> user_token_Map = new HashMap<>();
+    static Map<String, BufferedWriter> user_to_buffwriter = new HashMap<>();
 
     static ArrayList<Room> rooms = new ArrayList<>();
     public static void main(String[] args) throws IOException {
@@ -59,8 +61,7 @@ public class Server {
                             if(receive_json.getString("command").equals("LOGIN")){
                                 response = login(receive_json);
                                 answerToClient(response);
-                                OneServer oneServer = new OneServer(logged_in_user_id, out);
-                                oneServer.run();
+                                user_to_buffwriter.put(logged_in_user_id, out);
 
                             } else {    // Socket 유지 할 필요 없음
                                 if(receive_json.getString("command").equals("REGISTER")){
@@ -78,13 +79,33 @@ public class Server {
 
                                 answerToClient(response);
 
+
+
                                 socket.close();
                             }
 
+
+                            JSONObject testJson = new JSONObject();
+                            testJson.put("body", "Hello. This is test.");
+                            while(true){
+                                Thread.sleep(100);
+                                broadcast("test_user_1", testJson);
+                                broadcast("test_user_2", testJson);
+                            }
                         }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            }
+        }
+
+        public void broadcast(String to_user, JSONObject response_json) throws IOException {
+            if(user_to_buffwriter.containsKey(to_user)){
+                BufferedWriter broadout = user_to_buffwriter.get(to_user);
+
+                broadout.write(response_json.toString());
+                broadout.newLine();
+                broadout.flush();
             }
         }
 
