@@ -3,25 +3,21 @@ package model;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class ClientUser {
 
-    JSONArray friendList;
+    private final Socket socket;
+    private final String accessToken;
+    private JSONArray friendList;
 
-    String id = "아이디";
-    String name = "이름";
-    String nickname = "별명";
-    String email = "이메일";
-    String birth = "생일";
-
-    int isOnline;
-
-    String lastOnline;
+    private String id;
+    private String name;
+    private String nickname;
+    private String email;
+    private String birth;
+    private String statusMessage;
 
     public JSONArray getFriendList() {
         return friendList;
@@ -47,100 +43,72 @@ public class ClientUser {
         return birth;
     }
 
-    public int getIsOnline() {
-        return isOnline;
-    }
-
-    public void setIsOnline(int isOnline) {
-        this.isOnline = isOnline;
-    }
-
-    public String getLastOnline() {
-        return lastOnline;
-    }
-
-    public void setLastOnline(String lastOnline) {
-        this.lastOnline = lastOnline;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setBirth(String birth) {
-        this.birth = birth;
+    public String getStatusMessage() {
+        return statusMessage;
     }
 
     public ClientUser(String accessToken) {
         try {
-            JSONObject json = new JSONObject();
-            json.put("command", "GET_FRIENDS");
-            json.put("access-token", accessToken);
-            Socket socket = new Socket("localhost", 35014);
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            out.write(json.toString());
-            out.newLine();
-            out.flush();
-
-            String response_str = in.readLine();
-
-            JSONObject response = new JSONObject(response_str);
-            System.out.println("reponse: " + response);
-
-            friendList = response.getJSONArray("body");
+            socket = new Socket("localhost", 35014);
+            this.accessToken = accessToken;
+            getUserInfo();
+            getFriendListInfo();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private void getUserInfo() {
         try {
-            JSONObject json = new JSONObject();
-            json.put("command", "GET_USER_INFO");
-            json.put("access-token", accessToken);
-            Socket socket = new Socket("localhost", 35014);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("command", "GET_USER_INFO");
+            jsonObject.put("access-token", this.accessToken);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            out.write(json.toString());
+            out.write(jsonObject.toString());
             out.newLine();
             out.flush();
-//
-//            int attempts = 0;
-//            while(!in.ready() && attempts < 1000)
-//            {
-//                attempts++;
-//                Thread.sleep(10);
-//            }
 
             String response_str = in.readLine();
 
             JSONObject response = new JSONObject(response_str);
             JSONObject userInfo = response.getJSONObject("body");
 
-            System.out.println(userInfo);
+            this.id = userInfo.getString("user_id");
+            this.name = userInfo.getString("name");
+            this.nickname = userInfo.getString("nickname");
+            this.email = userInfo.getString("email");
+            this.birth = userInfo.getString("birthday");
+            this.statusMessage = userInfo.getString("status_message");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            setId(userInfo.getString("user_id"));
-            setName(userInfo.getString("name"));
-            setNickname(userInfo.getString("nickname"));
-            setEmail(userInfo.getString("email"));
-            setBirth(userInfo.getString("birthday"));
-            setIsOnline(Integer.parseInt(userInfo.getString("isOnline")));
-            setLastOnline(userInfo.getString("last_online"));
+    private void getFriendListInfo() {
+        try {
 
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("command", "GET_FRIENDS");
+            jsonObject.put("access-token", this.accessToken);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(jsonObject.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+            if (response_str != null) {
+
+                JSONObject response = new JSONObject(response_str);
+
+                friendList = response.getJSONArray("body");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

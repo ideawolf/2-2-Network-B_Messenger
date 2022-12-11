@@ -76,6 +76,9 @@ public class Server {
                                 if(receive_json.getString("command").equals("GET_ALL_ID")){
                                     response = get_all_id(receive_json);
                                 }
+                                if(receive_json.getString("command").equals("GET_USER_INFO")){
+                                    response = get_user_info(receive_json);
+                                }
 
                                 answerToClient(response);
 
@@ -371,6 +374,7 @@ public class Server {
             userinfo.put("birthday", rs2.getString("birthday"));
             userinfo.put("isOnline", String.valueOf(rs2.getInt("isOnline")));
             userinfo.put("last_online", rs2.getString("last_online"));
+            userinfo.put("status_message", rs2.getString("status_message"));
 
             JSONObject userObject = new JSONObject(userinfo);
 

@@ -39,7 +39,7 @@ public class ChatMain extends JFrame {
         // 호출되면 내 정보를 불러와서 각 변수에 넣어줌
         String username = USER.getName();
         String userNickname = USER.getNickname();
-        String dailyWordLabel = "오늘의 한마디";
+        String userStatusMessage = USER.getStatusMessage();
 
         // 유저 이름 집어넣어야됨
         JLabel usernameLabel = new JLabel(username);
@@ -54,11 +54,11 @@ public class ChatMain extends JFrame {
         userNicknameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(userNicknameLabel);
 
-        JLabel userDailyWordLabel = new JLabel(dailyWordLabel);
-        userDailyWordLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-        userDailyWordLabel.setBounds(0, 75, 200, 30);
-        userDailyWordLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(userDailyWordLabel);
+        JLabel userStatusMessageLabel = new JLabel(userStatusMessage);
+        userStatusMessageLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+        userStatusMessageLabel.setBounds(0, 75, 200, 30);
+        userStatusMessageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(userStatusMessageLabel);
 
         JButton userInfoEdit = new JButton("정보 변경");
         userInfoEdit.setBounds(250, 50, 75, 30);
@@ -95,11 +95,12 @@ public class ChatMain extends JFrame {
         add(friendListScroll);
 
 
-
         // 여기서 친구 리스트를 불러온 뒤 반복문을 통해 데이터를 넣음
         // friend 클래스에 친구 이름을 넣어서 리스트에 추가함
-        for(int i=0; i<USER.getFriendList().length(); i++)
-            friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
+        if (USER.getFriendList() != null) {
+            for (int i = 0; i < USER.getFriendList().length(); i++)
+                friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
+        }
 
         // 리스트 아래에 실시간 공공정보
 
@@ -129,12 +130,12 @@ public class ChatMain extends JFrame {
         for (int i = 0; i < jTable.getColumnModel().getColumnCount(); i++) {
             jTable.getColumnModel().getColumn(i).setCellRenderer(dtcr);
         }
-        JScrollPane scrolledTable=new JScrollPane(jTable);	//스크롤 될 수 있도록 JScrollPane 적용
+        JScrollPane scrolledTable = new JScrollPane(jTable);    //스크롤 될 수 있도록 JScrollPane 적용
         scrolledTable.setBackground(new Color(0xF4F3FF));
         scrolledTable.setBorder(new CompoundBorder(new LineBorder(Color.GRAY, 1),
-                new EmptyBorder(10,10,10,10)));
+                new EmptyBorder(10, 10, 10, 10)));
         //scrolledTable.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        scrolledTable.setBounds(50, 440, 300,60);
+        scrolledTable.setBounds(50, 440, 300, 60);
         add(scrolledTable);
 
         // 유저 검색
@@ -193,23 +194,23 @@ public class ChatMain extends JFrame {
         friend(JSONObject friend) {
             super(null);
             Container comp = this;
-            setMaximumSize(new Dimension(600,51));
+            setMaximumSize(new Dimension(600, 51));
             setBorder(new EmptyBorder(10, 20, 10, 0));
             setBackground(new Color(0xF4F3FF));
 
             JLabel name = new JLabel(friend.getString("user_id"));
-            name.setBounds(10,10,90,30);
+            name.setBounds(10, 10, 90, 30);
             name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             add(name);
 
             JLabel dailyWord = new JLabel("오늘의 한마디");
-            dailyWord.setBounds(100,10,175,30);
+            dailyWord.setBounds(100, 10, 175, 30);
             dailyWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             dailyWord.setHorizontalAlignment(SwingConstants.RIGHT);
             add(dailyWord);
 
             JLabel line = new JLabel();
-            line.setBounds(0,50,300,1);
+            line.setBounds(0, 50, 300, 1);
             line.setBackground(Color.GRAY);
             line.setOpaque(true);
             add(line);
@@ -346,38 +347,38 @@ public class ChatMain extends JFrame {
             getContentPane().setBackground(Color.WHITE);
 
             JLabel description = new JLabel("정보 수정");
-            description.setBounds(50,25,300,30);
+            description.setBounds(50, 25, 300, 30);
             description.setFont(new Font("맑은 고딕", Font.BOLD, 16));
             description.setHorizontalAlignment(SwingConstants.CENTER);
             add(description);
 
             // 별명과 오늘의 한마디 변경 가능
             JLabel nicknameDesc = new JLabel("별명 : ");
-            nicknameDesc.setBounds(50,75,100,30);
+            nicknameDesc.setBounds(50, 75, 100, 30);
             nicknameDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             nicknameDesc.setHorizontalAlignment(SwingConstants.CENTER);
             add(nicknameDesc);
 
             JTextField nicknameField = new JTextField("이전 별명");
-            nicknameField.setBounds(150,75,200,30);
+            nicknameField.setBounds(150, 75, 200, 30);
             nicknameField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             nicknameField.setHorizontalAlignment(SwingConstants.CENTER);
             add(nicknameField);
 
             JLabel dailyWordDesc = new JLabel("오늘의 한마디 :");
-            dailyWordDesc.setBounds(50,125,100,30);
+            dailyWordDesc.setBounds(50, 125, 100, 30);
             dailyWordDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             dailyWordDesc.setHorizontalAlignment(SwingConstants.CENTER);
             add(dailyWordDesc);
 
             JTextField dailyWordField = new JTextField("이전 오늘의 한마디");
-            dailyWordField.setBounds(150,125,200,30);
+            dailyWordField.setBounds(150, 125, 200, 30);
             dailyWordField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             dailyWordField.setHorizontalAlignment(SwingConstants.CENTER);
             add(dailyWordField);
 
             JButton editButton = new JButton("변경!");
-            editButton.setBounds(100,175,200,30);
+            editButton.setBounds(100, 175, 200, 30);
             editButton.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             editButton.setHorizontalAlignment(SwingConstants.CENTER);
             editButton.setForeground(Color.BLACK);
@@ -401,11 +402,12 @@ public class ChatMain extends JFrame {
 
         LocalTime now = LocalTime.now().minusHours(1);
         now = now.minusMinutes(now.getMinute() % 30);
-        if (now.getHour() == 0) today = today.minusDays(1);
+        if (now.getHour() == 23) today = today.minusDays(1);
         String searchDate = today.format(formatter);
 
         formatter = DateTimeFormatter.ofPattern("HHmm");
         String searchTime = now.format(formatter);
+
 
 
         // 공공 데이터 포탈 api 예제 활용
