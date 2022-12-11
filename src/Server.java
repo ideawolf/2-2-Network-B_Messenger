@@ -65,6 +65,9 @@ public class Server {
                             if(receive_json.getString("command").equals("GET_USER_ROOM")){
                                 response = get_user_room(receive_json);
                             }
+                            if(receive_json.getString("command").equals("GET_ALL_ID")){
+                                response = get_all_id(receive_json);
+                            }
 
                             answerToClient(response);
                         }
@@ -236,6 +239,34 @@ public class Server {
 
 
             response.put("body", rooms);
+            response.put("status", 200);
+
+            return response;
+        }
+
+        public JSONObject get_all_id(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+//            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+//
+//            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select user_id FROM user";
+            PreparedStatement ps = con.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            JSONArray user_id_arr = new JSONArray();
+
+            while (rs.next()) {
+
+                user_id_arr.put(rs.getString("user_id"));
+            }
+
+
+            response.put("body", user_id_arr);
             response.put("status", 200);
 
             return response;

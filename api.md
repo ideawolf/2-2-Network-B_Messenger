@@ -30,3 +30,8 @@
 #### Get Chat List
 - request :  {"command":"GET_USER_ROOM", "access-token":"access-token"}
 - reponse: {"body":{"1":[{"user_id":"test_user_1","nickname":"test_user_1","email":"test_user_1@email.com"},{"user_id":"test_user_2","nickname":"test_user_2","email":"test_user_2@email.com"}],"2":[{"user_id":"test_user_1","nickname":"test_user_1","email":"test_user_1@email.com"},{"user_id":"test_user_3","nickname":"test_user_3","email":"test_user_3@email.com"}]},"status":200}
+
+#### Get All USERID
+- request : No need
+- reponse: {"body":[null,null,null,"userId1","userId1","userId1","test_name","test_user_1","test_user_2","test_user_3","test_id","test_id","test_id","test_id","test_id","dds","sd","sd","as"],"status":200}
+
