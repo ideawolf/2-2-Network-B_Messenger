@@ -7,8 +7,6 @@ import java.io.*;
 import java.net.Socket;
 
 public class ClientUser {
-
-    private final Socket socket;
     private final String accessToken;
     private JSONArray friendList;
 
@@ -49,7 +47,6 @@ public class ClientUser {
 
     public ClientUser(String accessToken) {
         try {
-            socket = new Socket("localhost", 35014);
             this.accessToken = accessToken;
             getUserInfo();
             getFriendListInfo();
@@ -60,6 +57,8 @@ public class ClientUser {
 
     private void getUserInfo() {
         try {
+            Socket socket = new Socket("localhost", 35014);
+
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("command", "GET_USER_INFO");
             jsonObject.put("access-token", this.accessToken);
@@ -88,6 +87,8 @@ public class ClientUser {
 
     private void getFriendListInfo() {
         try {
+            Socket socket = new Socket("localhost", 35014);
+
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("command", "GET_FRIENDS");
             jsonObject.put("access-token", this.accessToken);
@@ -112,6 +113,8 @@ public class ClientUser {
         this.nickname = nickname;
         this.statusMessage = statusMessage;
         try {
+            Socket socket = new Socket("localhost", 35014);
+
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("command", "EDIT_INFO");
             jsonObject.put("access-token", this.accessToken);

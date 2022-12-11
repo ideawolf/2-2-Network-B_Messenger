@@ -431,6 +431,7 @@ public class ChatMain extends JFrame {
                 if (!(nickname.equals(nicknameField.getText()) && statusMessage.equals(statusMessageField.getText()))) {
                     USER.editInfo(nicknameField.getText(), statusMessageField.getText());
                     // 모든 유저들에게 별명과 상메가 바뀌었다는 메시지를 보내야함
+                    dispose();
                 }
             });
 
