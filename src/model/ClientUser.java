@@ -19,6 +19,10 @@ public class ClientUser {
     String email = "이메일";
     String birth = "생일";
 
+    int isOnline;
+
+    String lastOnline;
+
     public JSONArray getFriendList() {
         return friendList;
     }
@@ -43,11 +47,47 @@ public class ClientUser {
         return birth;
     }
 
+    public int getIsOnline() {
+        return isOnline;
+    }
+
+    public void setIsOnline(int isOnline) {
+        this.isOnline = isOnline;
+    }
+
+    public String getLastOnline() {
+        return lastOnline;
+    }
+
+    public void setLastOnline(String lastOnline) {
+        this.lastOnline = lastOnline;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setBirth(String birth) {
+        this.birth = birth;
+    }
+
     public ClientUser(String accessToken) {
         try {
             JSONObject json = new JSONObject();
             json.put("command", "GET_FRIENDS");
-            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+            json.put("access-token", accessToken);
             Socket socket = new Socket("localhost", 35014);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -62,6 +102,43 @@ public class ClientUser {
             System.out.println("reponse: " + response);
 
             friendList = response.getJSONArray("body");
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "GET_USER_INFO");
+            json.put("access-token", accessToken);
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+//
+//            int attempts = 0;
+//            while(!in.ready() && attempts < 1000)
+//            {
+//                attempts++;
+//                Thread.sleep(10);
+//            }
+
+            String response_str = in.readLine();
+
+            JSONObject response = new JSONObject(response_str);
+            JSONObject userInfo = response.getJSONObject("body");
+
+            System.out.println(userInfo);
+
+            setId(userInfo.getString("user_id"));
+            setName(userInfo.getString("name"));
+            setNickname(userInfo.getString("nickname"));
+            setEmail(userInfo.getString("email"));
+            setBirth(userInfo.getString("birthday"));
+            setIsOnline(Integer.parseInt(userInfo.getString("isOnline")));
+            setLastOnline(userInfo.getString("last_online"));
+
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

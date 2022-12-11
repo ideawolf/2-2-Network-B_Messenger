@@ -20,18 +20,46 @@ import java.util.Map;
 // 00000000-0000-0000-0000-000000000003
 public class Example_API {
     public static void main(String[] args) {
+//        try {
+//            JSONObject json = new JSONObject();
+//            json.put("command", "GET_ALL_ID");
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+//            Socket socket = new Socket("localhost", 35014);
+//            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+//            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//
+//
+//            out.write(json.toString());
+//            out.newLine();
+//            out.flush();
+//
+//            String response_str = in.readLine();
+//
+//            JSONObject response = new JSONObject(response_str);
+//
+//            System.out.println("reponse: " + response);
+//
+//        } catch (Exception ex) {
+//            throw new RuntimeException(ex);
+//        }
         try {
             JSONObject json = new JSONObject();
-            json.put("command", "GET_ALL_ID");
+            json.put("command", "GET_USER_INFO");
             json.put("access-token", "00000000-0000-0000-0000-000000000001");
             Socket socket = new Socket("localhost", 35014);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-
             out.write(json.toString());
             out.newLine();
             out.flush();
+//
+//            int attempts = 0;
+//            while(!in.ready() && attempts < 1000)
+//            {
+//                attempts++;
+//                Thread.sleep(10);
+//            }
 
             String response_str = in.readLine();
 
@@ -39,10 +67,12 @@ public class Example_API {
 
             System.out.println("reponse: " + response);
 
+            JSONObject userInfo = response.getJSONObject("body");
+
+            System.out.println(userInfo);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-
     }
 
     public void get_friend_list(){
@@ -81,6 +111,39 @@ public class Example_API {
         }
     }
 
+    public void get_user_info(){
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "GET_USER_INFO");
+            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+//
+//            int attempts = 0;
+//            while(!in.ready() && attempts < 1000)
+//            {
+//                attempts++;
+//                Thread.sleep(10);
+//            }
+
+            String response_str = in.readLine();
+
+            JSONObject response = new JSONObject(response_str);
+
+            System.out.println("reponse: " + response);
+
+            JSONObject userInfo = response.getJSONObject("body");
+
+            System.out.println(userInfo);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     public void get_chat_list(){
         try {

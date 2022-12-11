@@ -37,8 +37,8 @@ public class ChatMain extends JFrame {
         // 메뉴 : 내 정보 변경
 
         // 호출되면 내 정보를 불러와서 각 변수에 넣어줌
-        String username = "유저명";
-        String userNickname = "유저 별명";
+        String username = USER.getName();
+        String userNickname = USER.getNickname();
         String dailyWordLabel = "오늘의 한마디";
 
         // 유저 이름 집어넣어야됨
@@ -228,9 +228,9 @@ public class ChatMain extends JFrame {
             item1.addActionListener(e -> {
                 // 상세 정보 화면 호출
                 new detailInfo(friend.getString("user_id"),
-                        friend.getString("user_id"),
+                        friend.getString("name"),
                         friend.getString("nickname"),
-                        friend.getString("user_id"),
+                        friend.getString("email"),
                         friend.getString("user_id"));
             });
 
@@ -270,9 +270,9 @@ public class ChatMain extends JFrame {
             item1.addActionListener(e -> {
                 // 상세 정보 화면 호출
                 new detailInfo(user.getString("user_id"),
-                        user.getString("user_id"),
+                        user.getString("name"),
                         user.getString("nickname"),
-                        user.getString("user_id"),
+                        user.getString("email"),
                         user.getString("user_id"));
             });
 

@@ -64,6 +64,9 @@ public class Server {
                             if(receive_json.getString("command").equals("GET_FRIENDS")){
                                 response = get_friends(receive_json);
                             }
+                            if(receive_json.getString("command").equals("GET_USER_INFO")){
+                                response = get_user_info(receive_json);
+                            }
                             if(receive_json.getString("command").equals("GET_USER_ROOM")){
                                 response = get_user_room(receive_json);
                             }
@@ -330,5 +333,36 @@ public class Server {
             return response;
         }
 
+        public JSONObject get_user_info(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query2 = "select * FROM user WHERE user_id =?;";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, userid);
+            ResultSet rs2 = ps2.executeQuery();
+
+            HashMap<String, String> userinfo = new HashMap<>();
+            userinfo.put("user_id", rs2.getString("user_id"));
+            userinfo.put("name", rs2.getString("name"));
+            userinfo.put("nickname", rs2.getString("nickname"));
+            userinfo.put("email", rs2.getString("email"));
+            userinfo.put("birthday", rs2.getString("birthday"));
+            userinfo.put("isOnline", String.valueOf(rs2.getInt("isOnline")));
+            userinfo.put("last_online", rs2.getString("last_online"));
+
+            JSONObject userObject = new JSONObject(userinfo);
+
+            response.put("body", userObject);
+            response.put("status", 200);
+
+            return response;
+        }
     }
 }
