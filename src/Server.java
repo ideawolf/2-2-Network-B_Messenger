@@ -82,8 +82,6 @@ public class Server {
             out.flush();
 
             System.out.println("result 전송함: " + response.toString());
-
-            socket.close();
         }
 
 
