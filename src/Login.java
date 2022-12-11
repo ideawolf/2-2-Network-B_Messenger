@@ -1,3 +1,4 @@
+import function.Encrypt;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
@@ -7,6 +8,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Login extends JFrame {
 
@@ -61,8 +63,8 @@ public class Login extends JFrame {
             try {
                 JSONObject json = new JSONObject();
                 json.put("command", "LOGIN");
-                json.put("name", idField);
-                json.put("password", pwField);
+                json.put("id", idField.getText());
+                json.put("password", Encrypt.getEncrpyt(Arrays.toString(pwField.getPassword())));
                 Socket socket = new Socket("localhost", 35014);
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -75,6 +77,7 @@ public class Login extends JFrame {
 
                 JSONObject response = new JSONObject(response_str);
 
+                //if (response.get())
 
                 System.out.println("reponse : " + response);
             } catch (Exception ex) {
