@@ -1,4 +1,5 @@
 import function.Encrypt;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -56,6 +57,31 @@ public class Register extends JFrame {
             String newId = newIdField.getText();
             // db에서 id 목록 가져와서 newId랑 비교
 
+            try {
+                JSONObject json = new JSONObject();
+                json.put("command", "GET_ALL_ID");
+                Socket socket = new Socket("localhost", 35014);
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                out.write(json.toString());
+                out.newLine();
+                out.flush();
+
+                String response_str = in.readLine();
+
+                JSONObject response = new JSONObject(response_str);
+                JSONArray idArray = response.getJSONArray("body");
+
+                for (int i = 0; i < idArray.length(); i++) {
+                    if (idArray.get(i).equals(newId)) {
+                        JOptionPane.showOptionDialog(null, "중복된 ID가 이미 존재합니다", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
+                        return;
+                    }
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 
             // 중복체크 성공하면 setEnabled false로 바꾸기
             newIdCheck.setEnabled(false);
