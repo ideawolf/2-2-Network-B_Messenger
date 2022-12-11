@@ -22,7 +22,7 @@ public class Server {
 
         ServerSocket listener = new ServerSocket(35014);
 
-        ExecutorService pool = Executors.newFixedThreadPool(20);
+        ExecutorService pool = Executors.newFixedThreadPool(3);
 
         while (true) {
             Socket socket = listener.accept();
@@ -43,28 +43,31 @@ public class Server {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                 while (true) {
-                    String input = in.readLine();
-                    if(input != null){
-                        System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
+                        String input = in.readLine();
+                        if(input != null){
+                            System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
 
-                        JSONObject receive_json = new JSONObject(input);
+                            JSONObject receive_json = new JSONObject(input);
 
-                        JSONObject response = new JSONObject();
-                        response.put("status", 400);
-                        response.put("body", "Server Do Nothing");
+                            JSONObject response = new JSONObject();
+                            response.put("status", 400);
+                            response.put("body", "Server Do Nothing");
 
-                        if(receive_json.getString("command").equals("REGISTER")){
-                            response = register(receive_json);
+                            if(receive_json.getString("command").equals("REGISTER")){
+                                response = register(receive_json);
+                            }
+                            if(receive_json.getString("command").equals("LOGIN")){
+                                response = login(receive_json);
+                            }
+                            if(receive_json.getString("command").equals("GET_FRIENDS")){
+                                response = get_friends(receive_json);
+                            }
+                            if(receive_json.getString("command").equals("GET_USER_ROOM")){
+                                response = get_user_room(receive_json);
+                            }
+
+                            answerToClient(response);
                         }
-                        if(receive_json.getString("command").equals("LOGIN")){
-                            response = login(receive_json);
-                        }
-                        if(receive_json.getString("command").equals("GET_FRIENDS")){
-                            response = get_friends(receive_json);
-                        }
-
-                        answerToClient(response);
-                    }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -80,6 +83,7 @@ public class Server {
 
             System.out.println("result 전송함: " + response.toString());
 
+            socket.close();
         }
 
 
@@ -112,6 +116,7 @@ public class Server {
 
             return response;
         }
+
         public JSONObject login(JSONObject receive_json) throws SQLException {
             JSONObject response = new JSONObject();
             response.put("status", 400);
@@ -181,6 +186,58 @@ public class Server {
 
 
             response.put("body", friendsArray);
+            response.put("status", 200);
+
+            return response;
+        }
+
+
+        public JSONObject get_user_room(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select room_id FROM has_room WHERE user_id =?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, userid);
+            ResultSet rs = ps.executeQuery();
+
+            JSONObject rooms = new JSONObject();
+
+            while (rs.next()) {
+                JSONArray roomInfoArray = new JSONArray();
+
+                String query2 = "select user_id FROM has_room WHERE room_id =?;";
+                PreparedStatement ps2 = con.prepareStatement(query2);
+                ps2.setString(1, rs.getString("room_id"));
+                ResultSet rs2 = ps2.executeQuery();
+                while (rs2.next()) {
+                    String query3 = "select * FROM user WHERE user_id =?;";
+                    PreparedStatement ps3 = con.prepareStatement(query3);
+                    ps3.setString(1, rs2.getString("user_id"));
+                    ResultSet rs3 = ps3.executeQuery();
+
+
+                    while (rs3.next()) {
+                        HashMap<String, String> userinfo = new HashMap<>();
+                        userinfo.put("user_id", rs3.getString("user_id"));
+                        userinfo.put("name", rs3.getString("name"));
+                        userinfo.put("nickname", rs3.getString("nickname"));
+                        userinfo.put("email", rs3.getString("email"));
+
+                        roomInfoArray.put(new JSONObject(userinfo));
+                    }
+                }
+                rooms.put(rs.getString("room_id"), roomInfoArray);
+            }
+
+
+            response.put("body", rooms);
             response.put("status", 200);
 
             return response;
