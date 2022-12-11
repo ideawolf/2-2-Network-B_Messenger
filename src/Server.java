@@ -79,6 +79,9 @@ public class Server {
                                 if(receive_json.getString("command").equals("GET_USER_INFO")){
                                     response = get_user_info(receive_json);
                                 }
+                                if(receive_json.getString("command").equals("CREATE_ROOM")){
+                                    response = create_room(receive_json);
+                                }
 
                                 answerToClient(response);
 
@@ -312,7 +315,7 @@ public class Server {
             return response;
         }
 
-        public JSONObject create_room(JSONObject receive_json) throws SQLException {
+        public JSONObject create_room(JSONObject receive_json) throws SQLException, IOException {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
@@ -340,13 +343,39 @@ public class Server {
                 int res = ps2.executeUpdate();
                 if(res > 0 ){
                     System.out.println("Room Created: " + created_room_id);
+
+                    JSONArray userListJson = response.getJSONArray("userlist");
+                    ArrayList<String> userList = new ArrayList<String>();
+
+                    if (userListJson != null) {
+                        for (int i=0;i<userListJson.length();i++){
+                            userList.add(userListJson.getString(i));
+                        }
+                    }
+
+                    for(String user : userList){
+                        String query3 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
+                        PreparedStatement ps3 = con.prepareStatement(query3);
+                        ps3.setString(1, user);
+                        ps3.setInt(2, created_room_id);
+                        int res2 = ps2.executeUpdate();
+
+                        JSONObject invitedResponse = new JSONObject();
+                        invitedResponse.put("command", "invited");
+                        invitedResponse.put("body", "you are invited in " + created_room_id);
+                        invitedResponse.put("room_id", created_room_id);
+                        if(res2 > 0 ) {
+                            System.out.println(user + " is invited in " + created_room_id);
+
+                            broadcast(user, invitedResponse);
+                        }
+                    }
                 }
 
             }
-
-
-            response.put("body", rooms);
+            response.put("body", "Ok");
             response.put("status", 200);
+
 
             return response;
         }
