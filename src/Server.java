@@ -90,6 +90,9 @@ public class Server {
                             if(receive_json.getString("command").equals("ADD_FRIEND")){
                                 response = add_friend(receive_json);
                             }
+                            if(receive_json.getString("command").equals("SEND_MESSAGE")){
+                                response = send_message(receive_json);
+                            }
 
                             answerToClient(response);
 
@@ -368,6 +371,8 @@ public class Server {
                     "VALUES (?);";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, localDateTimeFormat);
+
+            ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
 

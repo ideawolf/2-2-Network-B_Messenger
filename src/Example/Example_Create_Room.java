@@ -27,7 +27,7 @@ public class Example_Create_Room {
             json.put("access-token", "00000000-0000-0000-0000-000000000001");
 
             JSONArray invite_user_list = new JSONArray();
-            invite_user_list.put("test_user_2");
+            invite_user_list.put("test_user_3");
             invite_user_list.put("as");
 
             json.put("userlist", invite_user_list);
