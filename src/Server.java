@@ -82,21 +82,9 @@ public class Server {
                                 if(receive_json.getString("command").equals("CREATE_ROOM")){
                                     response = create_room(receive_json);
                                 }
-
                                 answerToClient(response);
 
-
-
                                 socket.close();
-                            }
-
-
-                            JSONObject testJson = new JSONObject();
-                            testJson.put("body", "Hello. This is test.");
-                            while(true){
-                                Thread.sleep(100);
-                                broadcast("test_user_1", testJson);
-                                broadcast("test_user_2", testJson);
                             }
                         }
                 }
@@ -157,6 +145,9 @@ public class Server {
                 response.put("body", "Register failed");
             }
 
+
+            con.close();
+
             return response;
         }
 
@@ -189,6 +180,9 @@ public class Server {
                 response.put("body", "Login Failed");
 
             }
+
+
+            con.close();
 
             return response;
         }
@@ -231,6 +225,9 @@ public class Server {
 
             response.put("body", friendsArray);
             response.put("status", 200);
+
+
+            con.close();
 
             return response;
         }
@@ -284,6 +281,9 @@ public class Server {
             response.put("body", rooms);
             response.put("status", 200);
 
+            con.close();
+
+
             return response;
         }
 
@@ -312,6 +312,9 @@ public class Server {
             response.put("body", user_id_arr);
             response.put("status", 200);
 
+            con.close();
+
+
             return response;
         }
 
@@ -325,13 +328,15 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
             String query = "INSERT INTO room (last_time)" +
-                    "VALUES (now());";
+                    "VALUES (?);";
             PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, localDateTimeFormat);
 
             ResultSet rs = ps.getGeneratedKeys();
-
-            JSONObject rooms = new JSONObject();
 
             while (rs.next()) {
                 int created_room_id = rs.getInt(1);
@@ -344,7 +349,7 @@ public class Server {
                 if(res > 0 ){
                     System.out.println("Room Created: " + created_room_id);
 
-                    JSONArray userListJson = response.getJSONArray("userlist");
+                    JSONArray userListJson = receive_json.getJSONArray("userlist");
                     ArrayList<String> userList = new ArrayList<String>();
 
                     if (userListJson != null) {
@@ -376,6 +381,7 @@ public class Server {
             response.put("body", "Ok");
             response.put("status", 200);
 
+            con.close();
 
             return response;
         }
@@ -409,6 +415,8 @@ public class Server {
 
             response.put("body", userObject);
             response.put("status", 200);
+
+            con.close();
 
             return response;
         }

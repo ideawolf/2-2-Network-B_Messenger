@@ -22,6 +22,44 @@ public class Example_API {
     public static void main(String[] args) {
         try {
             JSONObject json = new JSONObject();
+            json.put("command", "CREATE_ROOM");
+            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+
+            JSONArray invite_user_list = new JSONArray();
+            invite_user_list.put("test_user_2");
+            invite_user_list.put("test_user_3");
+
+            json.put("userlist", invite_user_list);
+
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            while(true){
+                String response_str = in.readLine();
+
+                if(response_str == null){
+                    Thread.sleep(10);
+                    continue;
+                }
+                JSONObject response = new  JSONObject(response_str);
+
+                System.out.println("reponse: " + response);
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void login(){
+        try {
+            JSONObject json = new JSONObject();
             json.put("command", "LOGIN");
             json.put("id", "test_user_2");
             json.put("password", "test_password");
