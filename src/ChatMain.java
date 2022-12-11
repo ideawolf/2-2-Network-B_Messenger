@@ -134,7 +134,10 @@ public class ChatMain extends JFrame {
             jTable.getColumnModel().getColumn(i).setCellRenderer(dtcr);
         }
         JScrollPane scrolledTable=new JScrollPane(jTable);	//스크롤 될 수 있도록 JScrollPane 적용
-        scrolledTable.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        scrolledTable.setBackground(new Color(0xF4F3FF));
+        scrolledTable.setBorder(new CompoundBorder(new LineBorder(Color.GRAY, 1),
+                new EmptyBorder(10,10,10,10)));
+        //scrolledTable.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         scrolledTable.setBounds(50, 440, 300,60);
         add(scrolledTable);
 
