@@ -34,16 +34,18 @@ public class Server {
 
     private static class ServerConnection implements Runnable {
         private Socket socket;
+        private String logged_in_user_id;
         ServerConnection(Socket socket) {
             this.socket = socket;
         }
+        BufferedWriter out;
 
         @Override
         public void run() {
             System.out.println("Connected: " + socket);
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 while (true) {
                         String input = in.readLine();
                         if(input != null){
@@ -55,11 +57,9 @@ public class Server {
                             response.put("status", 400);
                             response.put("body", "Server Do Nothing");
 
-                            if(receive_json.getString("command").equals("REGISTER")){
-                                response = register(receive_json);
-                            }
                             if(receive_json.getString("command").equals("LOGIN")){
                                 response = login(receive_json);
+<<<<<<< Updated upstream
                             }
                             if(receive_json.getString("command").equals("GET_FRIENDS")){
                                 response = get_friends(receive_json);
@@ -72,9 +72,35 @@ public class Server {
                             }
                             if(receive_json.getString("command").equals("GET_ALL_ID")){
                                 response = get_all_id(receive_json);
+=======
+                                answerToClient(response);
+                                OneServer oneServer = new OneServer();
+                                Map<String, BufferedWriter> oneBuff = new HashMap<>();
+                                oneBuff.put(logged_in_user_id, out);
+                                OneServer.setUserid_to_clientwriter(oneBuff);
+                                oneServer.run();
+
+
+                            } else {    // Socket 유지 할 필요 없음
+                                if(receive_json.getString("command").equals("REGISTER")){
+                                    response = register(receive_json);
+                                }
+                                if(receive_json.getString("command").equals("GET_FRIENDS")){
+                                    response = get_friends(receive_json);
+                                }
+                                if(receive_json.getString("command").equals("GET_USER_ROOM")){
+                                    response = get_user_room(receive_json);
+                                }
+                                if(receive_json.getString("command").equals("GET_ALL_ID")){
+                                    response = get_all_id(receive_json);
+                                }
+
+                                answerToClient(response);
+
+                                socket.close();
+>>>>>>> Stashed changes
                             }
 
-                            answerToClient(response);
                         }
                 }
             } catch (Exception e) {
@@ -83,7 +109,6 @@ public class Server {
         }
 
         public void answerToClient(JSONObject response) throws IOException {
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             out.write(response.toString());
             out.newLine();
@@ -147,6 +172,7 @@ public class Server {
                 response.put("body", "Login Success");
                 response.put("access-token", uuid);
 
+                logged_in_user_id = rs.getString("user_id");
 
                 user_token_Map.put(uuid, rs.getString("user_id"));
 
@@ -292,38 +318,26 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            String query = "select room_id FROM has_room WHERE user_id =?;";
+            String query = "INSERT INTO room (last_time)" +
+                    "VALUES (now());";
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, userid);
-            ResultSet rs = ps.executeQuery();
+
+            ResultSet rs = ps.getGeneratedKeys();
 
             JSONObject rooms = new JSONObject();
 
             while (rs.next()) {
-                JSONArray roomInfoArray = new JSONArray();
+                int created_room_id = rs.getInt(1);
 
-                String query2 = "select user_id FROM has_room WHERE room_id =?;";
+                String query2 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
                 PreparedStatement ps2 = con.prepareStatement(query2);
-                ps2.setString(1, rs.getString("room_id"));
-                ResultSet rs2 = ps2.executeQuery();
-                while (rs2.next()) {
-                    String query3 = "select * FROM user WHERE user_id =?;";
-                    PreparedStatement ps3 = con.prepareStatement(query3);
-                    ps3.setString(1, rs2.getString("user_id"));
-                    ResultSet rs3 = ps3.executeQuery();
-
-
-                    while (rs3.next()) {
-                        HashMap<String, String> userinfo = new HashMap<>();
-                        userinfo.put("user_id", rs3.getString("user_id"));
-                        userinfo.put("name", rs3.getString("name"));
-                        userinfo.put("nickname", rs3.getString("nickname"));
-                        userinfo.put("email", rs3.getString("email"));
-
-                        roomInfoArray.put(new JSONObject(userinfo));
-                    }
+                ps2.setString(1, userid);
+                ps2.setInt(2, created_room_id);
+                int res = ps2.executeUpdate();
+                if(res > 0 ){
+                    System.out.println("Room Created: " + created_room_id);
                 }
-                rooms.put(rs.getString("room_id"), roomInfoArray);
+
             }
 
 

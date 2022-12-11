@@ -44,8 +44,15 @@ public class Example_API {
 //        }
         try {
             JSONObject json = new JSONObject();
+<<<<<<< Updated upstream
             json.put("command", "GET_USER_INFO");
             json.put("access-token", "00000000-0000-0000-0000-000000000001");
+=======
+            json.put("command", "LOGIN");
+            json.put("id", "test_user_1");
+            json.put("password", "test_password");
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+>>>>>>> Stashed changes
             Socket socket = new Socket("localhost", 35014);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -61,11 +68,13 @@ public class Example_API {
 //                Thread.sleep(10);
 //            }
 
-            String response_str = in.readLine();
+            while(true){
+                String response_str = in.readLine();
 
-            JSONObject response = new JSONObject(response_str);
+                JSONObject response = new JSONObject(response_str);
 
-            System.out.println("reponse: " + response);
+                System.out.println("reponse: " + response);
+            }
 
             JSONObject userInfo = response.getJSONObject("body");
 
