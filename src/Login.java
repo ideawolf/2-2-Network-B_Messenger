@@ -83,6 +83,8 @@ public class Login extends JFrame {
                     JOptionPane.showOptionDialog(null, "ID와 비밀번호를 다시 확인해주세요", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
                 } else {
                     // 로그인 성공해서 chatmain으로 넘어가는 부분
+                    dispose();
+                    new ChatMain(response.getString("access-token"));
                 }
             } catch (Exception ex) {
                 throw new RuntimeException(ex);

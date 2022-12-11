@@ -29,7 +29,8 @@ public class ChatMain extends JFrame {
         setLayout(null);
         getContentPane().setBackground(Color.WHITE);
 
-        ClientUser USER = new ClientUser("00000000-0000-0000-0000-000000000001");
+        ClientUser USER = new ClientUser(accessToken);
+        System.out.println(accessToken);
 
         // 내 정보
         // 상세정보 : Id, 이름, 별명, 오늘의 한마디
@@ -98,7 +99,7 @@ public class ChatMain extends JFrame {
         // 여기서 친구 리스트를 불러온 뒤 반복문을 통해 데이터를 넣음
         // friend 클래스에 친구 이름을 넣어서 리스트에 추가함
         for(int i=0; i<USER.getFriendList().length(); i++)
-            friendList.add(new friend((String) USER.getFriendList().getJSONObject(i).get("user_id")));
+            friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
 
         // 리스트 아래에 실시간 공공정보
 
@@ -189,14 +190,14 @@ public class ChatMain extends JFrame {
 
     static class friend extends JPanel {
 
-        friend(String friendName) {
+        friend(JSONObject friend) {
             super(null);
             Container comp = this;
             setMaximumSize(new Dimension(600,51));
             setBorder(new EmptyBorder(10, 20, 10, 0));
             setBackground(new Color(0xF4F3FF));
 
-            JLabel name = new JLabel(friendName);
+            JLabel name = new JLabel(friend.getString("user_id"));
             name.setBounds(10,10,90,30);
             name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             add(name);
@@ -226,7 +227,11 @@ public class ChatMain extends JFrame {
 
             item1.addActionListener(e -> {
                 // 상세 정보 화면 호출
-                new detailInfo("대상 아이디");
+                new detailInfo(friend.getString("user_id"),
+                        friend.getString("user_id"),
+                        friend.getString("nickname"),
+                        friend.getString("user_id"),
+                        friend.getString("user_id"));
             });
 
             item2.addActionListener(e -> {
@@ -245,8 +250,8 @@ public class ChatMain extends JFrame {
 
     static class searched extends JLabel {
 
-        searched(String userName) {
-            super(userName);
+        searched(JSONObject user) {
+            super(user.getString("user_id"));
             setFont(new Font("맑은 고딕", Font.BOLD, 12));
             Container comp = this;
             setBorder(new EmptyBorder(20, 20, 20, 0));
@@ -264,7 +269,11 @@ public class ChatMain extends JFrame {
 
             item1.addActionListener(e -> {
                 // 상세 정보 화면 호출
-                new detailInfo("대상 아이디");
+                new detailInfo(user.getString("user_id"),
+                        user.getString("user_id"),
+                        user.getString("nickname"),
+                        user.getString("user_id"),
+                        user.getString("user_id"));
             });
 
             item2.addActionListener(e -> {
@@ -283,7 +292,7 @@ public class ChatMain extends JFrame {
 
     static class detailInfo extends JFrame {
 
-        detailInfo(String Id) {
+        detailInfo(String id, String name, String nickname, String state, String conTime) {
             super("유저 상세정보");
             setSize(300, 225);
             setResizable(false);
@@ -291,31 +300,31 @@ public class ChatMain extends JFrame {
             setLayout(null);
             getContentPane().setBackground(Color.WHITE);
 
-            JLabel userIdLabel = new JLabel("아이디 : " + "ID");
+            JLabel userIdLabel = new JLabel("아이디 : " + id);
             userIdLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             userIdLabel.setBounds(50, 25, 200, 30);
             userIdLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(userIdLabel);
 
-            JLabel usernameLabel = new JLabel("이름 : " + "이름");
+            JLabel usernameLabel = new JLabel("이름 : " + name);
             usernameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             usernameLabel.setBounds(50, 50, 200, 30);
             usernameLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(usernameLabel);
 
-            JLabel userNicknameLabel = new JLabel("별명 : " + "별명");
+            JLabel userNicknameLabel = new JLabel("별명 : " + nickname);
             userNicknameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             userNicknameLabel.setBounds(50, 75, 200, 30);
             userNicknameLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(userNicknameLabel);
 
-            JLabel userOnOffStateLabel = new JLabel("온/오프라인");
+            JLabel userOnOffStateLabel = new JLabel("접속 상태 : " + state);
             userOnOffStateLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             userOnOffStateLabel.setBounds(50, 100, 200, 30);
             userOnOffStateLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(userOnOffStateLabel);
 
-            JLabel lastConTimeLabel = new JLabel("시간");
+            JLabel lastConTimeLabel = new JLabel("마지막 접속 : " + conTime);
             lastConTimeLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             lastConTimeLabel.setBounds(50, 125, 200, 30);
             lastConTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
