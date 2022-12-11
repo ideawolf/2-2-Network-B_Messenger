@@ -19,6 +19,7 @@
 - response :
   - Success: {"body":"Login Success","status":200, "access-token": "계정 토큰값"}
   - Fail: {"body":"Login Failed","status":400}
+  - 로그인 이후 BufferedReader in 에 담긴 리더 그대로 사용해서 접속유지
 
 
 #### Get Friends List
