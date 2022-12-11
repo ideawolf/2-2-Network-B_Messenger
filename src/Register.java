@@ -199,6 +199,7 @@ public class Register extends JFrame {
                 json.put("password", Encrypt.getEncrpyt(Arrays.toString(newPwdField.getPassword())));
                 json.put("nickname", newNicknameField.getText());
                 json.put("email", newEmailField.getText());
+                json.put("birthday", newBirthField.getText());
                 Socket socket = new Socket("localhost", 35014);
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

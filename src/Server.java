@@ -2,6 +2,8 @@ import java.net.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -92,10 +94,13 @@ public class Server {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            String query = "INSERT INTO user (user_id, password, name, nickname, email)\n" +
-                    "VALUES ( ?, ?, ?, ?, ?);";
+            String query = "INSERT INTO user (user_id, password, name, nickname, email, birthday, isOnline, last_online)\n" +
+                    "VALUES ( ?, ?, ?, ?, ?, ?, 0, ?);";
 
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, receive_json.getString("id"));
@@ -103,6 +108,8 @@ public class Server {
             ps.setString(3, receive_json.getString("name"));
             ps.setString(4, receive_json.getString("nickname"));
             ps.setString(5, receive_json.getString("email"));
+            ps.setString(6, receive_json.getString("birthday"));
+            ps.setString(7, localDateTimeFormat);
 
             int updateResult = ps.executeUpdate();
 
