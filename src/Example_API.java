@@ -102,4 +102,48 @@ public class Example_API {
     }
 
 
+    public void get_chat_list(){
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "GET_USER_ROOM");
+            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+
+            JSONObject response = new JSONObject(response_str);
+
+            System.out.println("reponse: " + response);
+
+            JSONObject roomsJson = response.getJSONObject("body");
+
+            System.out.println(roomsJson);
+
+            Map<String, Object> room_map = roomsJson.toMap();
+
+            System.out.println(room_map);
+
+            for(Map.Entry<String, Object> room : room_map.entrySet()){
+                System.out.println(room.getKey());
+
+                System.out.println(roomsJson.get(room.getKey()));
+                JSONArray room_arr = roomsJson.getJSONArray(room.getKey());
+
+                for (int i=0; i < room_arr.length(); i++) {
+                    System.out.println(room_arr.get(i));
+                }
+
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }
