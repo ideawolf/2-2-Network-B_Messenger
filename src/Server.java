@@ -401,13 +401,13 @@ public class Server {
                         PreparedStatement ps3 = con.prepareStatement(query3);
                         ps3.setString(1, user);
                         ps3.setInt(2, created_room_id);
-                        int res2 = ps2.executeUpdate();
+                        int res3 = ps3.executeUpdate();
 
                         JSONObject invitedResponse = new JSONObject();
                         invitedResponse.put("command", "invited");
                         invitedResponse.put("body", "you are invited in " + created_room_id);
                         invitedResponse.put("room_id", created_room_id);
-                        if (res2 > 0) {
+                        if (res3 > 0) {
                             System.out.println(user + " is invited in " + created_room_id);
 
                             broadcast(user, invitedResponse);
