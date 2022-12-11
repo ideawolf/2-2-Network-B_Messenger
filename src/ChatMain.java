@@ -57,13 +57,18 @@ public class ChatMain extends JFrame {
         add(userDailyWordLabel);
 
         JButton userInfoEdit = new JButton("정보 변경");
-        userInfoEdit.setBounds(250, 50, 100, 30);
+        userInfoEdit.setBounds(250, 50, 75, 30);
         userInfoEdit.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         userInfoEdit.setHorizontalAlignment(JLabel.CENTER);
         userInfoEdit.setForeground(Color.BLACK);
         userInfoEdit.setBackground(Color.WHITE);
         userInfoEdit.setFocusPainted(false);
         userInfoEdit.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
+
+        userInfoEdit.addActionListener(e -> {
+            new infoEditor();
+        });
+
         add(userInfoEdit);
 
         // 친구 리스트
@@ -152,7 +157,7 @@ public class ChatMain extends JFrame {
         add(userSearchDesc);
 
         JTextField userSearchField = new JTextField(20);
-        userSearchField.setBounds(500, 25, 250, 30);
+        userSearchField.setBounds(500, 25, 225, 30);
         add(userSearchField);
 
         userSearchField.getDocument().addDocumentListener(new DocumentListener() {
@@ -192,13 +197,31 @@ public class ChatMain extends JFrame {
         setVisible(true);
     }
 
-    static class friend extends JLabel {
+    static class friend extends JPanel {
 
         friend(String friendName) {
-            super(friendName);
-            setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            super(null);
             Container comp = this;
+            setPreferredSize(new Dimension(300,51));
             setBorder(new EmptyBorder(10, 20, 10, 0));
+            setBackground(new Color(0xF4F3FF));
+
+            JLabel name = new JLabel("류관곤");
+            name.setBounds(10,10,90,30);
+            name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            add(name);
+
+            JLabel dailyWord = new JLabel("오늘의 한마디");
+            dailyWord.setBounds(100,10,175,30);
+            dailyWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            dailyWord.setHorizontalAlignment(SwingConstants.RIGHT);
+            add(dailyWord);
+
+            JLabel line = new JLabel();
+            line.setBounds(0,50,300,1);
+            line.setBackground(Color.GRAY);
+            line.setOpaque(true);
+            add(line);
 
             /*
              * 우클릭 메뉴
@@ -307,6 +330,63 @@ public class ChatMain extends JFrame {
             lastConTimeLabel.setBounds(50, 125, 200, 30);
             lastConTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(lastConTimeLabel);
+
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            setVisible(true);
+        }
+    }
+
+    static class infoEditor extends JFrame {
+
+        infoEditor() {
+            super("정보 변경");
+            setSize(400, 300);
+            setResizable(false);
+            setLocationRelativeTo(null);
+            setLayout(null);
+            getContentPane().setBackground(Color.WHITE);
+
+            JLabel description = new JLabel("정보 수정");
+            description.setBounds(50,25,300,30);
+            description.setFont(new Font("맑은 고딕", Font.BOLD, 16));
+            description.setHorizontalAlignment(SwingConstants.CENTER);
+            add(description);
+
+            // 별명과 오늘의 한마디 변경 가능
+            JLabel nicknameDesc = new JLabel("별명 : ");
+            nicknameDesc.setBounds(50,75,100,30);
+            nicknameDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            nicknameDesc.setHorizontalAlignment(SwingConstants.CENTER);
+            add(nicknameDesc);
+
+            JTextField nicknameField = new JTextField("이전 별명");
+            nicknameField.setBounds(150,75,200,30);
+            nicknameField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            nicknameField.setHorizontalAlignment(SwingConstants.CENTER);
+            add(nicknameField);
+
+            JLabel dailyWordDesc = new JLabel("오늘의 한마디 :");
+            dailyWordDesc.setBounds(50,125,100,30);
+            dailyWordDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            dailyWordDesc.setHorizontalAlignment(SwingConstants.CENTER);
+            add(dailyWordDesc);
+
+            JTextField dailyWordField = new JTextField("이전 오늘의 한마디");
+            dailyWordField.setBounds(150,125,200,30);
+            dailyWordField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            dailyWordField.setHorizontalAlignment(SwingConstants.CENTER);
+            add(dailyWordField);
+
+            JButton editButton = new JButton("변경!");
+            editButton.setBounds(100,175,200,30);
+            editButton.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            editButton.setHorizontalAlignment(SwingConstants.CENTER);
+            editButton.setForeground(Color.BLACK);
+            editButton.setBackground(Color.WHITE);
+            editButton.setFocusPainted(false);
+            editButton.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
+            add(editButton);
+
 
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setVisible(true);
