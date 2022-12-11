@@ -79,6 +79,7 @@ public class Login extends JFrame {
 
                 System.out.println(response);
 
+
                 if (response.getInt("status") == 400) {
                     JOptionPane.showOptionDialog(null, "ID와 비밀번호를 다시 확인해주세요", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
                 } else {
@@ -86,6 +87,7 @@ public class Login extends JFrame {
                     dispose();
                     new ChatMain(response.getString("access-token"));
                 }
+
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

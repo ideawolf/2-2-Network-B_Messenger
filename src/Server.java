@@ -66,43 +66,28 @@ public class Server {
                             } else {    // Socket 유지 할 필요 없음
                                 if(receive_json.getString("command").equals("REGISTER")){
                                     response = register(receive_json);
-                                    answerToClient(response);
-                                    socket.close();
                                 }
                                 if(receive_json.getString("command").equals("GET_FRIENDS")){
                                     response = get_friends(receive_json);
-                                    answerToClient(response);
-                                    socket.close();
                                 }
                                 if(receive_json.getString("command").equals("GET_USER_ROOM")){
                                     response = get_user_room(receive_json);
-                                    answerToClient(response);
-                                    socket.close();
                                 }
                                 if(receive_json.getString("command").equals("GET_ALL_ID")){
                                     response = get_all_id(receive_json);
-                                    answerToClient(response);
-                                    socket.close();
                                 }
                                 if(receive_json.getString("command").equals("GET_USER_INFO")){
                                     response = get_user_info(receive_json);
-                                    answerToClient(response);
-                                    socket.close();
+                                }
+                                if(receive_json.getString("command").equals("CREATE_ROOM")){
+                                    response = create_room(receive_json);
                                 }
                                 if(receive_json.getString("command").equals("EDIT_INFO")){
                                     response = edit_info(receive_json);
                                 }
-//                                answerToClient(response);
-//                                socket.close();
-                            }
+                                answerToClient(response);
 
-
-                            JSONObject testJson = new JSONObject();
-                            testJson.put("body", "Hello. This is test.");
-                            while(true){
-                                Thread.sleep(100);
-                                broadcast("test_user_1", testJson);
-                                broadcast("test_user_2", testJson);
+                                socket.close();
                             }
                         }
                 }
@@ -163,6 +148,9 @@ public class Server {
                 response.put("body", "Register failed");
             }
 
+
+            con.close();
+
             return response;
         }
 
@@ -195,6 +183,9 @@ public class Server {
                 response.put("body", "Login Failed");
 
             }
+
+
+            con.close();
 
             return response;
         }
@@ -237,6 +228,9 @@ public class Server {
 
             response.put("body", friendsArray);
             response.put("status", 200);
+
+
+            con.close();
 
             return response;
         }
@@ -290,6 +284,9 @@ public class Server {
             response.put("body", rooms);
             response.put("status", 200);
 
+            con.close();
+
+
             return response;
         }
 
@@ -318,10 +315,13 @@ public class Server {
             response.put("body", user_id_arr);
             response.put("status", 200);
 
+            con.close();
+
+
             return response;
         }
 
-        public JSONObject create_room(JSONObject receive_json) throws SQLException {
+        public JSONObject create_room(JSONObject receive_json) throws SQLException, IOException {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
@@ -331,13 +331,15 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
             String query = "INSERT INTO room (last_time)" +
-                    "VALUES (now());";
+                    "VALUES (?);";
             PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, localDateTimeFormat);
 
             ResultSet rs = ps.getGeneratedKeys();
-
-            JSONObject rooms = new JSONObject();
 
             while (rs.next()) {
                 int created_room_id = rs.getInt(1);
@@ -349,13 +351,40 @@ public class Server {
                 int res = ps2.executeUpdate();
                 if(res > 0 ){
                     System.out.println("Room Created: " + created_room_id);
+
+                    JSONArray userListJson = receive_json.getJSONArray("userlist");
+                    ArrayList<String> userList = new ArrayList<String>();
+
+                    if (userListJson != null) {
+                        for (int i=0;i<userListJson.length();i++){
+                            userList.add(userListJson.getString(i));
+                        }
+                    }
+
+                    for(String user : userList){
+                        String query3 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
+                        PreparedStatement ps3 = con.prepareStatement(query3);
+                        ps3.setString(1, user);
+                        ps3.setInt(2, created_room_id);
+                        int res2 = ps2.executeUpdate();
+
+                        JSONObject invitedResponse = new JSONObject();
+                        invitedResponse.put("command", "invited");
+                        invitedResponse.put("body", "you are invited in " + created_room_id);
+                        invitedResponse.put("room_id", created_room_id);
+                        if(res2 > 0 ) {
+                            System.out.println(user + " is invited in " + created_room_id);
+
+                            broadcast(user, invitedResponse);
+                        }
+                    }
                 }
 
             }
-
-
-            response.put("body", rooms);
+            response.put("body", "Ok");
             response.put("status", 200);
+
+            con.close();
 
             return response;
         }
@@ -390,8 +419,12 @@ public class Server {
             response.put("body", userObject);
             response.put("status", 200);
 
+            con.close();
+
             return response;
         }
+
+
 
         public JSONObject edit_info(JSONObject receive_json) throws SQLException {
             JSONObject response = new JSONObject();
@@ -411,6 +444,8 @@ public class Server {
             ResultSet rs2 = ps2.executeQuery();
 
             response.put("status", 200);
+
+            con.close();
 
             return response;
         }
