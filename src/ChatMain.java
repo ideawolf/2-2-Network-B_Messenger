@@ -11,6 +11,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import model.ClientUser;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -18,15 +19,17 @@ public class ChatMain extends JFrame {
 
 
     public static void main(String[] args) {
-        new ChatMain();
+        new ChatMain("00000000-0000-0000-0000-000000000001");
     }
 
-    ChatMain() {
+    ChatMain(String accessToken) {
         setSize(800, 600);
         setResizable(false);
         setLocationRelativeTo(null);
         setLayout(null);
         getContentPane().setBackground(Color.WHITE);
+
+        ClientUser USER = new ClientUser("00000000-0000-0000-0000-000000000001");
 
         // 내 정보
         // 상세정보 : Id, 이름, 별명, 오늘의 한마디
@@ -94,21 +97,8 @@ public class ChatMain extends JFrame {
 
         // 여기서 친구 리스트를 불러온 뒤 반복문을 통해 데이터를 넣음
         // friend 클래스에 친구 이름을 넣어서 리스트에 추가함
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
-        friendList.add(new friend("류관곤"));
+        for(int i=0; i<USER.getFriendList().length(); i++)
+            friendList.add(new friend((String) USER.getFriendList().getJSONObject(i).get("user_id")));
 
         // 리스트 아래에 실시간 공공정보
 
@@ -202,11 +192,11 @@ public class ChatMain extends JFrame {
         friend(String friendName) {
             super(null);
             Container comp = this;
-            setPreferredSize(new Dimension(300,51));
+            setMaximumSize(new Dimension(600,51));
             setBorder(new EmptyBorder(10, 20, 10, 0));
             setBackground(new Color(0xF4F3FF));
 
-            JLabel name = new JLabel("류관곤");
+            JLabel name = new JLabel(friendName);
             name.setBounds(10,10,90,30);
             name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             add(name);

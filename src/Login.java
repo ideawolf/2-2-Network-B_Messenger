@@ -1,3 +1,4 @@
+import function.Encrypt;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
@@ -7,6 +8,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Login extends JFrame {
 
@@ -61,8 +63,8 @@ public class Login extends JFrame {
             try {
                 JSONObject json = new JSONObject();
                 json.put("command", "LOGIN");
-                json.put("name", idField);
-                json.put("password", pwField);
+                json.put("id", idField.getText());
+                json.put("password", Encrypt.getEncrpyt(Arrays.toString(pwField.getPassword())));
                 Socket socket = new Socket("localhost", 35014);
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -75,8 +77,13 @@ public class Login extends JFrame {
 
                 JSONObject response = new JSONObject(response_str);
 
+                System.out.println(response);
 
-                System.out.println("reponse : " + response);
+                if (response.getInt("status") == 400) {
+                    JOptionPane.showOptionDialog(null, "ID와 비밀번호를 다시 확인해주세요", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
+                } else {
+                    // 로그인 성공해서 chatmain으로 넘어가는 부분
+                }
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
