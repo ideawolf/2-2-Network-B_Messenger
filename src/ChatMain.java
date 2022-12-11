@@ -20,6 +20,10 @@ public class ChatMain extends JFrame {
 
     ClientUser USER;
 
+    private JLabel usernameLabel;
+    private JLabel userNicknameLabel;
+    private JLabel userStatusMessageLabel;
+
     public static void main(String[] args) {
         new ChatMain("00000000-0000-0000-0000-000000000001");
     }
@@ -44,19 +48,19 @@ public class ChatMain extends JFrame {
         String userStatusMessage = USER.getStatusMessage();
 
         // 유저 이름 집어넣어야됨
-        JLabel usernameLabel = new JLabel(username);
+        usernameLabel = new JLabel(username);
         usernameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         usernameLabel.setBounds(0, 25, 200, 30);
         usernameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(usernameLabel);
 
-        JLabel userNicknameLabel = new JLabel(userNickname);
+        userNicknameLabel = new JLabel(userNickname);
         userNicknameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         userNicknameLabel.setBounds(0, 50, 200, 30);
         userNicknameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(userNicknameLabel);
 
-        JLabel userStatusMessageLabel = new JLabel(userStatusMessage);
+        userStatusMessageLabel = new JLabel(userStatusMessage);
         userStatusMessageLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
         userStatusMessageLabel.setBounds(0, 75, 200, 30);
         userStatusMessageLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -425,7 +429,8 @@ public class ChatMain extends JFrame {
 
             editButton.addActionListener(e -> {
                 if (!(nickname.equals(nicknameField.getText()) && statusMessage.equals(statusMessageField.getText()))) {
-                    USER.editInfo(nickname, statusMessage);
+                    USER.editInfo(nicknameField.getText(), statusMessageField.getText());
+                    // 모든 유저들에게 별명과 상메가 바뀌었다는 메시지를 보내야함
                 }
             });
 

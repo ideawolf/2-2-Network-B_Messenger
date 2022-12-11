@@ -130,3 +130,14 @@ public class ClientUser {
     }
 }
 
+class always_connect_class extends Thread {
+    BufferedReader in;
+    public always_connect_class(BufferedReader in) {
+        this.in = in;
+    }
+
+    @Override
+    public void run() {
+
+    }
+}

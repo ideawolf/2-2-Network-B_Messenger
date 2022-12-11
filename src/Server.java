@@ -472,7 +472,7 @@ public class Server {
             ps2.setString(1, receive_json.getString("nickname"));
             ps2.setString(2, receive_json.getString("statusMessage"));
             ps2.setString(3, userid);
-            ResultSet rs2 = ps2.executeQuery();
+            ps2.executeUpdate();
 
             response.put("status", 200);
 
