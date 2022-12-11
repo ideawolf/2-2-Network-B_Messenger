@@ -19,6 +19,7 @@ public class Server {
     static Map<String, BufferedWriter> user_to_buffwriter = new HashMap<>();
 
     static ArrayList<Room> rooms = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
         user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test_user_1");
         user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_1");
@@ -37,9 +38,11 @@ public class Server {
     private static class ServerConnection implements Runnable {
         private Socket socket;
         private String logged_in_user_id;
+
         ServerConnection(Socket socket) {
             this.socket = socket;
         }
+
         BufferedWriter out;
 
         @Override
@@ -49,50 +52,50 @@ public class Server {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 while (true) {
-                        String input = in.readLine();
-                        if(input != null){
-                            System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
+                    String input = in.readLine();
+                    if (input != null) {
+                        System.out.println(socket.getInetAddress().toString() + " 클라이언트가 전송함 : " + input);
 
-                            JSONObject receive_json = new JSONObject(input);
+                        JSONObject receive_json = new JSONObject(input);
 
-                            JSONObject response = new JSONObject();
-                            response.put("status", 400);
-                            response.put("body", "Server Do Nothing");
-                            if(receive_json.getString("command").equals("LOGIN")){
-                                response = login(receive_json);
-                                answerToClient(response);
-                                user_to_buffwriter.put(logged_in_user_id, out);
-
-                            } else {    // Socket 유지 할 필요 없음
-                                if(receive_json.getString("command").equals("REGISTER")){
-                                    response = register(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("GET_FRIENDS")){
-                                    response = get_friends(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("GET_USER_ROOM")){
-                                    response = get_user_room(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("GET_ALL_ID")){
-                                    response = get_all_id(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("GET_USER_INFO")){
-                                    response = get_user_info(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("CREATE_ROOM")){
-                                    response = create_room(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("EDIT_INFO")){
-                                    response = edit_info(receive_json);
-                                }
-                                if(receive_json.getString("command").equals("ADD_FRIEND")){
-                                    response = add_friend(receive_json);
-                                }
-                                answerToClient(response);
-
-                                socket.close();
+                        JSONObject response = new JSONObject();
+                        response.put("status", 400);
+                        response.put("body", "Server Do Nothing");
+                        if (receive_json.getString("command").equals("LOGIN")) {
+                            response = login(receive_json);
+                            answerToClient(response);
+                            user_to_buffwriter.put(logged_in_user_id, out);
+                        } else {    // Socket 유지 할 필요 없음
+                            if (receive_json.getString("command").equals("REGISTER")) {
+                                response = register(receive_json);
                             }
+                            if (receive_json.getString("command").equals("GET_FRIENDS")) {
+                                response = get_friends(receive_json);
+                            }
+                            if (receive_json.getString("command").equals("GET_USER_ROOM")) {
+                                response = get_user_room(receive_json);
+                            }
+                            if (receive_json.getString("command").equals("GET_ALL_ID")) {
+                                response = get_all_id(receive_json);
+                            }
+                            if (receive_json.getString("command").equals("GET_USER_INFO")) {
+                                response = get_user_info(receive_json);
+                            }
+                            if (receive_json.getString("command").equals("CREATE_ROOM")) {
+                                response = create_room(receive_json);
+                            }
+                            if (receive_json.getString("command").equals("EDIT_INFO")) {
+                                response = edit_info(receive_json);
+                            }
+                            if(receive_json.getString("command").equals("ADD_FRIEND")){
+                                response = add_friend(receive_json);
+                            }
+
+                            answerToClient(response);
+
+                            socket.close();
                         }
+                    }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -100,7 +103,7 @@ public class Server {
         }
 
         public void broadcast(String to_user, JSONObject response_json) throws IOException {
-            if(user_to_buffwriter.containsKey(to_user)){
+            if (user_to_buffwriter.containsKey(to_user)) {
                 BufferedWriter broadout = user_to_buffwriter.get(to_user);
 
                 broadout.write(response_json.toString());
@@ -143,7 +146,7 @@ public class Server {
             int updateResult = ps.executeUpdate();
 
 
-            if(updateResult > 0){
+            if (updateResult > 0) {
                 response.put("status", 200);
                 response.put("body", "Register Success");
             } else {
@@ -325,10 +328,6 @@ public class Server {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
-//            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
-//
-//            String userid = user_token_Map.get(access_token);
-
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
             String query = "select user_id FROM user";
@@ -380,19 +379,19 @@ public class Server {
                 ps2.setString(1, userid);
                 ps2.setInt(2, created_room_id);
                 int res = ps2.executeUpdate();
-                if(res > 0 ){
+                if (res > 0) {
                     System.out.println("Room Created: " + created_room_id);
 
                     JSONArray userListJson = receive_json.getJSONArray("userlist");
                     ArrayList<String> userList = new ArrayList<String>();
 
                     if (userListJson != null) {
-                        for (int i=0;i<userListJson.length();i++){
+                        for (int i = 0; i < userListJson.length(); i++) {
                             userList.add(userListJson.getString(i));
                         }
                     }
 
-                    for(String user : userList){
+                    for (String user : userList) {
                         String query3 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
                         PreparedStatement ps3 = con.prepareStatement(query3);
                         ps3.setString(1, user);
@@ -403,7 +402,7 @@ public class Server {
                         invitedResponse.put("command", "invited");
                         invitedResponse.put("body", "you are invited in " + created_room_id);
                         invitedResponse.put("room_id", created_room_id);
-                        if(res2 > 0 ) {
+                        if (res2 > 0) {
                             System.out.println(user + " is invited in " + created_room_id);
 
                             broadcast(user, invitedResponse);
@@ -456,7 +455,6 @@ public class Server {
         }
 
 
-
         public JSONObject edit_info(JSONObject receive_json) throws SQLException {
             JSONObject response = new JSONObject();
             response.put("status", 400);
@@ -480,5 +478,45 @@ public class Server {
 
             return response;
         }
+
+
+        public JSONObject send_message(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+
+            int room_id = receive_json.getInt("room_id");
+            String sender = receive_json.getString("sender");
+            String msg = receive_json.getString("msg");
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select user_id FROM has_room WHERE room_id=?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, room_id);
+            ResultSet rs = ps.executeQuery();
+
+            JSONArray user_id_arr = new JSONArray();
+            JSONObject res_broadcast = new JSONObject();
+            res_broadcast.put("command", "invited");
+            res_broadcast.put("body", msg);
+            res_broadcast.put("sender", sender);
+            res_broadcast.put("time", sender);
+            while (rs.next()) {
+                String to_user_id = rs.getString("user_id");
+                broadcast(to_user_id, res_broadcast);
+                user_id_arr.put(rs.getString("user_id"));
+            }
+
+            response.put("body", user_id_arr);
+            response.put("status", 200);
+
+            con.close();
+
+
+            return response;
+        }
+
+
     }
 }
