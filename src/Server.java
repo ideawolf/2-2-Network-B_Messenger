@@ -2,19 +2,19 @@ import java.net.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 //import com.auth0.jwt.JWT;
 import model.Response;
+import model.Room;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Server {
     static Map<UUID, String> user_token_Map = new HashMap<>();
+
+    static ArrayList<Room> rooms = new ArrayList<>();
     public static void main(String[] args) throws IOException {
         user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test_user_1");
         user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_1");
@@ -267,6 +267,57 @@ public class Server {
 
 
             response.put("body", user_id_arr);
+            response.put("status", 200);
+
+            return response;
+        }
+
+        public JSONObject create_room(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select room_id FROM has_room WHERE user_id =?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, userid);
+            ResultSet rs = ps.executeQuery();
+
+            JSONObject rooms = new JSONObject();
+
+            while (rs.next()) {
+                JSONArray roomInfoArray = new JSONArray();
+
+                String query2 = "select user_id FROM has_room WHERE room_id =?;";
+                PreparedStatement ps2 = con.prepareStatement(query2);
+                ps2.setString(1, rs.getString("room_id"));
+                ResultSet rs2 = ps2.executeQuery();
+                while (rs2.next()) {
+                    String query3 = "select * FROM user WHERE user_id =?;";
+                    PreparedStatement ps3 = con.prepareStatement(query3);
+                    ps3.setString(1, rs2.getString("user_id"));
+                    ResultSet rs3 = ps3.executeQuery();
+
+
+                    while (rs3.next()) {
+                        HashMap<String, String> userinfo = new HashMap<>();
+                        userinfo.put("user_id", rs3.getString("user_id"));
+                        userinfo.put("name", rs3.getString("name"));
+                        userinfo.put("nickname", rs3.getString("nickname"));
+                        userinfo.put("email", rs3.getString("email"));
+
+                        roomInfoArray.put(new JSONObject(userinfo));
+                    }
+                }
+                rooms.put(rs.getString("room_id"), roomInfoArray);
+            }
+
+
+            response.put("body", rooms);
             response.put("status", 200);
 
             return response;
