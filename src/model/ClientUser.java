@@ -88,7 +88,6 @@ public class ClientUser {
 
     private void getFriendListInfo() {
         try {
-
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("command", "GET_FRIENDS");
             jsonObject.put("access-token", this.accessToken);
@@ -101,14 +100,32 @@ public class ClientUser {
 
             String response_str = in.readLine();
             if (response_str != null) {
-
                 JSONObject response = new JSONObject(response_str);
-
                 friendList = response.getJSONArray("body");
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void editInfo(String nickname, String statusMessage) {
+        this.nickname = nickname;
+        this.statusMessage = statusMessage;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("command", "EDIT_INFO");
+            jsonObject.put("access-token", this.accessToken);
+            jsonObject.put("nickname", nickname);
+            jsonObject.put("statusMessage", statusMessage);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            //BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(jsonObject.toString());
+            out.newLine();
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

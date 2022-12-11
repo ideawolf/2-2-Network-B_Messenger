@@ -18,6 +18,8 @@ import org.json.JSONArray;
 public class ChatMain extends JFrame {
 
 
+    ClientUser USER;
+
     public static void main(String[] args) {
         new ChatMain("00000000-0000-0000-0000-000000000001");
     }
@@ -29,7 +31,7 @@ public class ChatMain extends JFrame {
         setLayout(null);
         getContentPane().setBackground(Color.WHITE);
 
-        ClientUser USER = new ClientUser(accessToken);
+        USER = new ClientUser(accessToken);
         System.out.println(accessToken);
 
         // 내 정보
@@ -70,7 +72,7 @@ public class ChatMain extends JFrame {
         userInfoEdit.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
 
         userInfoEdit.addActionListener(e -> {
-            new infoEditor();
+            new infoEditor(USER.getNickname(), USER.getStatusMessage());
         });
 
         add(userInfoEdit);
@@ -189,7 +191,7 @@ public class ChatMain extends JFrame {
         setVisible(true);
     }
 
-    static class friend extends JPanel {
+    class friend extends JPanel {
 
         friend(JSONObject friend) {
             super(null);
@@ -249,7 +251,7 @@ public class ChatMain extends JFrame {
         }
     }
 
-    static class searched extends JLabel {
+    class searched extends JLabel {
 
         searched(JSONObject user) {
             super(user.getString("user_id"));
@@ -291,7 +293,7 @@ public class ChatMain extends JFrame {
         }
     }
 
-    static class detailInfo extends JFrame {
+    class detailInfo extends JFrame {
 
         detailInfo(String id, String name, String nickname, String state, String conTime) {
             super("유저 상세정보");
@@ -336,9 +338,9 @@ public class ChatMain extends JFrame {
         }
     }
 
-    static class infoEditor extends JFrame {
+    class infoEditor extends JFrame {
 
-        infoEditor() {
+        infoEditor(String nickname, String statusMessage) {
             super("정보 변경");
             setSize(400, 300);
             setResizable(false);
@@ -359,23 +361,23 @@ public class ChatMain extends JFrame {
             nicknameDesc.setHorizontalAlignment(SwingConstants.CENTER);
             add(nicknameDesc);
 
-            JTextField nicknameField = new JTextField("이전 별명");
+            JTextField nicknameField = new JTextField(nickname);
             nicknameField.setBounds(150, 75, 200, 30);
             nicknameField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             nicknameField.setHorizontalAlignment(SwingConstants.CENTER);
             add(nicknameField);
 
-            JLabel dailyWordDesc = new JLabel("오늘의 한마디 :");
-            dailyWordDesc.setBounds(50, 125, 100, 30);
-            dailyWordDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-            dailyWordDesc.setHorizontalAlignment(SwingConstants.CENTER);
-            add(dailyWordDesc);
+            JLabel statusMessageDesc = new JLabel("오늘의 한마디 :");
+            statusMessageDesc.setBounds(50, 125, 100, 30);
+            statusMessageDesc.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            statusMessageDesc.setHorizontalAlignment(SwingConstants.CENTER);
+            add(statusMessageDesc);
 
-            JTextField dailyWordField = new JTextField("이전 오늘의 한마디");
-            dailyWordField.setBounds(150, 125, 200, 30);
-            dailyWordField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-            dailyWordField.setHorizontalAlignment(SwingConstants.CENTER);
-            add(dailyWordField);
+            JTextField statusMessageField = new JTextField(statusMessage);
+            statusMessageField.setBounds(150, 125, 200, 30);
+            statusMessageField.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            statusMessageField.setHorizontalAlignment(SwingConstants.CENTER);
+            add(statusMessageField);
 
             JButton editButton = new JButton("변경!");
             editButton.setBounds(100, 175, 200, 30);
@@ -386,6 +388,12 @@ public class ChatMain extends JFrame {
             editButton.setFocusPainted(false);
             editButton.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
             add(editButton);
+
+            editButton.addActionListener(e -> {
+                if (!(nickname.equals(nicknameField.getText()) && statusMessage.equals(statusMessageField.getText()))) {
+                    USER.editInfo(nickname, statusMessage);
+                }
+            });
 
 
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
