@@ -224,9 +224,11 @@ public class ChatMain extends JFrame {
 
             MenuItem item1 = new MenuItem("See detail");
             MenuItem item2 = new MenuItem("1:1 Chatting");
+            MenuItem item3 = new MenuItem("Send a file");
 
             pm1.add(item1);
             pm1.add(item2);
+            pm1.add(item3);
 
             item1.addActionListener(e -> {
                 // 상세 정보 화면 호출
@@ -239,6 +241,10 @@ public class ChatMain extends JFrame {
 
             item2.addActionListener(e -> {
                 // 채팅 시작
+            });
+
+            item3.addActionListener(e -> {
+                // 파일 보내기
             });
 
             addMouseListener(new MouseAdapter() {
