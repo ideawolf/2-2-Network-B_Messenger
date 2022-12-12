@@ -66,6 +66,9 @@ public class Server {
                             if (receive_json.getString("command").equals("REGISTER")) {
                                 response = register(receive_json);
                             }
+                            if (receive_json.getString("command").equals("UPDATE_ONLINE")) {
+                                response = update_online(receive_json);
+                            }
                             if (receive_json.getString("command").equals("GET_FRIENDS")) {
                                 response = get_friends(receive_json);
                             }
@@ -230,6 +233,48 @@ public class Server {
                 response.put("body", "Add failed");
             }
 
+
+            con.close();
+
+            return response;
+        }
+
+        public JSONObject update_online(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "update user set isOnline = ? where user_id = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, receive_json.getString("isOnline"));
+            ps.setString(2, userid);
+            ps.executeUpdate();
+
+            String query2 = "update user set last_online = ? where user_id = ?";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, localDateTimeFormat);
+            ps2.setString(2, userid);
+            ps2.executeUpdate();
+
+            String query3 = "select from_user_id FROM friend WHERE to_user_id=?;";
+            PreparedStatement ps3 = con.prepareStatement(query3);
+            ps3.setString(1, userid);
+            ResultSet rs = ps3.executeQuery();
+
+            JSONObject res_broadcast = new JSONObject();
+            res_broadcast.put("command", "info_edited");
+            while (rs.next()) {
+                String from_user_id = rs.getString("from_user_id");
+                broadcast(from_user_id, res_broadcast);
+            }
 
             con.close();
 

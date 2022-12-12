@@ -67,6 +67,7 @@ public class ChatMain extends JFrame {
         String userNickname = USER.getNickname();
         String userStatusMessage = USER.getStatusMessage();
 
+
         // 유저 이름 집어넣어야됨
         usernameLabel = new JLabel(username);
         usernameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
@@ -273,8 +274,18 @@ public class ChatMain extends JFrame {
             }
         });
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                int option = JOptionPane.showOptionDialog(null, "               메신저를 종료하시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"나가기", "취소"}, "나가기");
+                if (option == 0) {
+                    USER.updateOnline("0");
+                    System.exit(0);
+                }
+            }
+        });
     }
 
     class friend extends JPanel {
