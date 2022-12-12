@@ -3,10 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-public class ChatRoom extends Frame {
-    public static void main(String[] args) {
-        new ChatRoom();
-    }
+public class ChatRoom extends JFrame {
 
     ImageIcon file_upload_img = new ImageIcon("images/file_upload.png");
 
@@ -15,7 +12,7 @@ public class ChatRoom extends Frame {
     ChatRoom() {
         setSize(600, 540);
         setLayout(new FlowLayout());
-        setBackground(Color.lightGray);
+        setBackground(Color.gray);
 
         JTextArea chatList = new JTextArea();
         chatList.setPreferredSize(new Dimension(560, 400));
@@ -27,7 +24,6 @@ public class ChatRoom extends Frame {
 
         JTextArea sendArea = new JTextArea();
         sendArea.setPreferredSize(new Dimension(390, 80));
-
 
         JButton sendButton = new JButton("보내기");
         sendButton.setPreferredSize(new Dimension(80, 80));
