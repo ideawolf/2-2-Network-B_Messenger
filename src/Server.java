@@ -562,7 +562,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            String query = "select user_id FROM has_room WHERE room_id=?;";
+            String query = "select user_id FROM has_room WHERE room_id=? AND IsAccept = 1;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, room_id);
             ResultSet rs = ps.executeQuery();
