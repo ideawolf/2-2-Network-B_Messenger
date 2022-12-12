@@ -22,8 +22,8 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
         user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test_user_1");
-        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_1");
-        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000003"), "test_user_1");
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_2");
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000003"), "test_user_3");
 
         ServerSocket listener = new ServerSocket(35014);
 
