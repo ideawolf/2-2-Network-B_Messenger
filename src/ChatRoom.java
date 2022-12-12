@@ -13,16 +13,21 @@ public class ChatRoom extends Frame {
     private final JFileChooser fileChooser = new JFileChooser();
 
     ChatRoom() {
-        setSize(600, 600);
+        setSize(600, 540);
         setLayout(new FlowLayout());
+        setBackground(Color.lightGray);
 
-        TextArea chatList = new TextArea("", 30, 80, TextArea.SCROLLBARS_VERTICAL_ONLY);
+        JTextArea chatList = new JTextArea();
+        chatList.setPreferredSize(new Dimension(560, 400));
         chatList.setEditable(false);
+        chatList.setBackground(Color.white);
 
         JButton fileSendButton = new JButton(file_upload_img);
-        fileSendButton.setPreferredSize(new Dimension(40, 40));
+        fileSendButton.setPreferredSize(new Dimension(80, 80));
 
-        TextArea sendArea = new TextArea("", 4, 60, TextArea.SCROLLBARS_NONE);
+        JTextArea sendArea = new JTextArea();
+        sendArea.setPreferredSize(new Dimension(390, 80));
+
 
         JButton sendButton = new JButton("보내기");
         sendButton.setPreferredSize(new Dimension(80, 80));
