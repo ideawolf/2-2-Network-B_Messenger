@@ -37,6 +37,13 @@ public class ChatMain extends JFrame {
         friendListScroll.setViewportView(friendList);
     }
 
+    public void reloadUserInfo() {
+        USER.getUserInfo();
+        usernameLabel.setText(USER.getName());
+        userNicknameLabel.setText(USER.getNickname());
+        userStatusMessageLabel.setText(USER.getStatusMessage());
+    }
+
     public static void main(String[] args) {
         new ChatMain("00000000-0000-0000-0000-000000000001");
     }
@@ -89,7 +96,7 @@ public class ChatMain extends JFrame {
         userInfoEdit.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
 
         userInfoEdit.addActionListener(e -> {
-            new infoEditor(USER.getNickname(), USER.getStatusMessage());
+            new infoEditor(USER.getNickname(), USER.getStatusMessage(), this);
         });
 
         add(userInfoEdit);
@@ -111,9 +118,6 @@ public class ChatMain extends JFrame {
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         friendListScroll.getVerticalScrollBar().setUnitIncrement(15);
         friendListScroll.setBounds(50, 150, 300, 250);
-
-
-
         add(friendListScroll);
 
 
@@ -515,7 +519,7 @@ public class ChatMain extends JFrame {
 
     class infoEditor extends JFrame {
 
-        infoEditor(String nickname, String statusMessage) {
+        infoEditor(String nickname, String statusMessage, ChatMain chatMain) {
             super("정보 변경");
             setSize(400, 300);
             setResizable(false);
@@ -567,6 +571,12 @@ public class ChatMain extends JFrame {
             editButton.addActionListener(e -> {
                 if (!(nickname.equals(nicknameField.getText()) && statusMessage.equals(statusMessageField.getText()))) {
                     USER.editInfo(nicknameField.getText(), statusMessageField.getText());
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    chatMain.reloadUserInfo();
                     // 모든 유저들에게 별명과 상메가 바뀌었다는 메시지를 보내야함
                     dispose();
                 }
