@@ -240,8 +240,24 @@ public class ChatMain extends JFrame {
             name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             add(name);
 
+            JLabel isOnline = new JLabel();
+            isOnline.setBounds(100, 10, 50, 30);
+            isOnline.setFont(new Font("맑은 고딕", Font.BOLD, 10));
+            isOnline.setHorizontalAlignment(SwingConstants.CENTER);
+            if(friend.getString("isOnline").equals("1"))
+            {
+                isOnline.setText("온라인");
+                isOnline.setForeground(Color.GREEN);
+            }
+            else
+            {
+                isOnline.setText("오프라인");
+                isOnline.setForeground(Color.RED);
+            }
+            add(isOnline);
+
             JLabel dailyWord = new JLabel(friend.getString("status_message"));
-            dailyWord.setBounds(100, 10, 175, 30);
+            dailyWord.setBounds(150, 10, 125, 30);
             dailyWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             dailyWord.setHorizontalAlignment(SwingConstants.RIGHT);
             add(dailyWord);
