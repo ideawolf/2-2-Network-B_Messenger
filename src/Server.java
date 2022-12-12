@@ -1,7 +1,5 @@
 import java.net.*;
 import java.io.*;
-import java.nio.Buffer;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,7 +7,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 //import com.auth0.jwt.JWT;
-import model.Response;
 import model.Room;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -97,6 +94,10 @@ public class Server {
                                 response = get_search_result(receive_json);
                             }
 
+                            if(receive_json.getString("command").equals("LOAD_MYROOM")){
+                                response = load_myroom(receive_json);
+                            }
+
                             answerToClient(response);
 
                             socket.close();
@@ -133,7 +134,7 @@ public class Server {
             response.put("status", 400);
 
             LocalDateTime localDateTime = LocalDateTime.now();
-            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
@@ -414,7 +415,7 @@ public class Server {
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
             LocalDateTime localDateTime = LocalDateTime.now();
-            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
             String query = "INSERT INTO room (last_time)" +
                     "VALUES (?);";
@@ -554,7 +555,7 @@ public class Server {
             ResultSet rs = ps.executeQuery();
 
             LocalDateTime localDateTime = LocalDateTime.now();
-            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
             JSONArray user_id_arr = new JSONArray();
             JSONObject res_broadcast = new JSONObject();
@@ -584,35 +585,30 @@ public class Server {
 
             UUID access_token = UUID.fromString(receive_json.getString("access-token"));
 
-            String sender_id = user_token_Map.get(access_token);
+            String user_id = user_token_Map.get(access_token);
 
             int room_id = receive_json.getInt("room_id");
-            String sender = sender_id;
             String msg = receive_json.getString("msg");
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            String query = "select user_id FROM has_room WHERE room_id=?;";
+            String query = "select room_id FROM has_room WHERE user_id=?;";
             PreparedStatement ps = con.prepareStatement(query);
-            ps.setInt(1, room_id);
+            ps.setString(1, user_id);
             ResultSet rs = ps.executeQuery();
 
             LocalDateTime localDateTime = LocalDateTime.now();
-            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
-            JSONArray user_id_arr = new JSONArray();
-            JSONObject res_broadcast = new JSONObject();
-            res_broadcast.put("command", "recieve_message");
-            res_broadcast.put("body", msg);
-            res_broadcast.put("sender", sender);
-            res_broadcast.put("time", localDateTimeFormat);
+//            LocalDateTime last_time = LocalDateTime.parse(rs.getString())
+
+            JSONArray room_list = new JSONArray();
+
             while (rs.next()) {
-                String to_user_id = rs.getString("user_id");
-                broadcast(to_user_id, res_broadcast);
-                user_id_arr.put(rs.getString("user_id"));
+                room_list.put(rs.getInt(room_id));
             }
 
-            response.put("body", user_id_arr);
+            response.put("body", room_list);
             response.put("status", 200);
 
             con.close();
