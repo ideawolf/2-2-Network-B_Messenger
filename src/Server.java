@@ -93,9 +93,11 @@ public class Server {
                             if(receive_json.getString("command").equals("SEARCH")){
                                 response = get_search_result(receive_json);
                             }
-
                             if(receive_json.getString("command").equals("LOAD_MYROOM")){
                                 response = load_myroom(receive_json);
+                            }
+                            if(receive_json.getString("command").equals("INVITE_ROOM")){
+                                response = invite_room(receive_json);
                             }
 
                             answerToClient(response);
@@ -405,6 +407,65 @@ public class Server {
             return response;
         }
 
+        public JSONObject invite_room(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+
+            int room_id = receive_json.getInt("room_id");
+
+            String query2 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, userid);
+            ps2.setInt(2, room_id);
+            int res = ps2.executeUpdate();
+            if (res > 0) {
+                System.out.println("Room Created: " + room_id);
+
+                JSONArray userListJson = receive_json.getJSONArray("userlist");
+                ArrayList<String> userList = new ArrayList<String>();
+
+                if (userListJson != null) {
+                    for (int i = 0; i < userListJson.length(); i++) {
+                        userList.add(userListJson.getString(i));
+                    }
+                }
+
+                for (String user : userList) {
+                    String query3 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
+                    PreparedStatement ps3 = con.prepareStatement(query3);
+                    ps3.setString(1, user);
+                    ps3.setInt(2, room_id);
+                    int res3 = ps3.executeUpdate();
+
+                    JSONObject invitedResponse = new JSONObject();
+                    invitedResponse.put("command", "invited");
+                    invitedResponse.put("body", "you are invited in " + room_id);
+                    invitedResponse.put("room_id", room_id);
+                    if (res3 > 0) {
+                        System.out.println(user + " is invited in " + room_id);
+
+                        broadcast(user, invitedResponse);
+                    }
+                }
+            }
+
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+            con.close();
+
+            return response;
+        }
+
         public JSONObject create_room(JSONObject receive_json) throws SQLException, IOException {
             JSONObject response = new JSONObject();
             response.put("status", 400);
@@ -557,7 +618,6 @@ public class Server {
             String sender_id = user_token_Map.get(access_token);
 
             int room_id = receive_json.getInt("room_id");
-            String sender = sender_id;
             String msg = receive_json.getString("msg");
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
@@ -574,7 +634,7 @@ public class Server {
             JSONObject res_broadcast = new JSONObject();
             res_broadcast.put("command", "recieve_message");
             res_broadcast.put("body", msg);
-            res_broadcast.put("sender", sender);
+            res_broadcast.put("sender", sender_id);
             res_broadcast.put("room_id", room_id);
             res_broadcast.put("time", localDateTimeFormat);
             while (rs.next()) {

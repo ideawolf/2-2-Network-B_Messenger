@@ -52,3 +52,9 @@
 - request : {"access-token":"00000000-0000-0000-0000-000000000003","command":"LOAD_MYROOM"}
 - reponse: {"body":[{"last_time":"2022-12-12T17:47:07.419093","id":2},{"last_time":"2022-12-12T17:47:07.419093","id":8},{"last_time":"2022-12-12T17:47:07.419093","id":9}],"status":200}
 
+
+#### Invite Room
+- request : {"room_id":8,"userlist":["test_user_3","as"],"access-token":"00000000-0000-0000-0000-000000000001","command":"INVITE_ROOM"}
+- response :
+  1. 만든 사람 : {"body":"Ok","status":200}
+  2. 초대 받은 사람 : {"room_id":0,"body":"you are invited in 0","command":"invited"}
