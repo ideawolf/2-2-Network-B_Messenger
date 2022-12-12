@@ -321,6 +321,7 @@ public class ChatMain extends JFrame {
                         friend.getString("name"),
                         friend.getString("nickname"),
                         friend.getString("email"),
+                        friend.getString("is_online"),
                         friend.getString("last_online"));
             });
 
@@ -386,6 +387,7 @@ public class ChatMain extends JFrame {
                         user.getString("name"),
                         user.getString("nickname"),
                         user.getString("email"),
+                        user.getString("is_online"),
                         user.getString("last_online"));
             });
 
@@ -442,8 +444,9 @@ public class ChatMain extends JFrame {
 
     class detailInfo extends JFrame {
 
-        detailInfo(String id, String name, String nickname, String state, String conTime) {
+        detailInfo(String id, String name, String nickname, String email, String state, String conTime) {
             super("유저 상세정보");
+            state = state.equals("0") ? "오프라인" : "온라인";
             setSize(300, 225);
             setResizable(false);
             setLocationRelativeTo(null);
@@ -468,15 +471,23 @@ public class ChatMain extends JFrame {
             userNicknameLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(userNicknameLabel);
 
+            JLabel userEmailLabel = new JLabel("이메일 : " + email);
+            userEmailLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            userEmailLabel.setBounds(50, 100, 200, 30);
+            userEmailLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            add(userEmailLabel);
+
             JLabel userOnOffStateLabel = new JLabel("접속 상태 : " + state);
             userOnOffStateLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-            userOnOffStateLabel.setBounds(50, 100, 200, 30);
+            userOnOffStateLabel.setBounds(50, 125, 200, 30);
             userOnOffStateLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(userOnOffStateLabel);
 
+            conTime = LocalDateTime.parse(conTime).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+
             JLabel lastConTimeLabel = new JLabel("마지막 접속 : " + conTime);
             lastConTimeLabel.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-            lastConTimeLabel.setBounds(50, 125, 200, 30);
+            lastConTimeLabel.setBounds(40, 150, 220, 30);
             lastConTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(lastConTimeLabel);
 
