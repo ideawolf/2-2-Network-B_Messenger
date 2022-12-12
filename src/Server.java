@@ -304,7 +304,7 @@ public class Server {
                     userinfo.put("name", rs2.getString("name"));
                     userinfo.put("nickname", rs2.getString("nickname"));
                     userinfo.put("email", rs2.getString("email"));
-                    userinfo.put("is_online", String.valueOf(rs2.getInt("isOnline")));
+                    userinfo.put("isOnline", String.valueOf(rs2.getInt("isOnline")));
                     userinfo.put("last_online", rs2.getString("last_online"));
                     userinfo.put("status_message", rs2.getString("status_message"));
 

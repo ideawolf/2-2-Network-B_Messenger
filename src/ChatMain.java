@@ -338,6 +338,10 @@ public class ChatMain extends JFrame {
 
             item2.addActionListener(e -> {
                 // 채팅 시작
+                if (friend.getString("isOnline").equals("0")) {
+                    new ChatRoom();
+                }
+
             });
 
             item3.addActionListener(e -> {
@@ -398,11 +402,20 @@ public class ChatMain extends JFrame {
                         user.getString("name"),
                         user.getString("nickname"),
                         user.getString("email"),
-                        user.getString("is_online"),
+                        user.getString("isOnline"),
                         user.getString("last_online"));
             });
 
             item2.addActionListener(e -> {
+                // 이미 있는 친구인지 확인
+                JSONArray friendList = USER.getFriendList();
+                for (int i = 0; i < friendList.length(); i++) {
+                    if (friendList.getJSONObject(i).getString("user_id").equals(user.getString("user_id"))) {
+                        JOptionPane.showOptionDialog(null, "이미 친구입니다", "알림",
+                                JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
+                        return;
+                    }
+                }
                 // 친구 추가
                 try {
                     JSONObject json = new JSONObject();
