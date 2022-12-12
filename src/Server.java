@@ -560,6 +560,50 @@ public class Server {
             res_broadcast.put("command", "recieve_message");
             res_broadcast.put("body", msg);
             res_broadcast.put("sender", sender);
+            res_broadcast.put("room_id", room_id);
+            res_broadcast.put("time", localDateTimeFormat);
+            while (rs.next()) {
+                String to_user_id = rs.getString("user_id");
+                broadcast(to_user_id, res_broadcast);
+                user_id_arr.put(rs.getString("user_id"));
+            }
+
+            response.put("body", user_id_arr);
+            response.put("status", 200);
+
+            con.close();
+
+
+            return response;
+        }
+
+        public JSONObject load_myroom(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String sender_id = user_token_Map.get(access_token);
+
+            int room_id = receive_json.getInt("room_id");
+            String sender = sender_id;
+            String msg = receive_json.getString("msg");
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select user_id FROM has_room WHERE room_id=?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, room_id);
+            ResultSet rs = ps.executeQuery();
+
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+            JSONArray user_id_arr = new JSONArray();
+            JSONObject res_broadcast = new JSONObject();
+            res_broadcast.put("command", "recieve_message");
+            res_broadcast.put("body", msg);
+            res_broadcast.put("sender", sender);
             res_broadcast.put("time", localDateTimeFormat);
             while (rs.next()) {
                 String to_user_id = rs.getString("user_id");
