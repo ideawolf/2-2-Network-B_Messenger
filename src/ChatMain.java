@@ -332,7 +332,7 @@ public class ChatMain extends JFrame {
                         friend.getString("name"),
                         friend.getString("nickname"),
                         friend.getString("email"),
-                        friend.getString("is_online"),
+                        friend.getString("isOnline"),
                         friend.getString("last_online"));
             });
 
