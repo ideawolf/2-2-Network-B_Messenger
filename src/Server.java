@@ -261,6 +261,7 @@ public class Server {
                     userinfo.put("email", rs2.getString("email"));
                     userinfo.put("last_online", rs2.getString("last_online"));
                     userinfo.put("status_message", rs2.getString("status_message"));
+                    userinfo.put("isOnline", rs2.getString("isOnline"));
 
                     friendsArray.put(new JSONObject(userinfo));
                 }
