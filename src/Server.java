@@ -93,6 +93,9 @@ public class Server {
                             if(receive_json.getString("command").equals("SEND_MESSAGE")){
                                 response = send_message(receive_json);
                             }
+                            if(receive_json.getString("command").equals("SEARCH")){
+                                response = get_search_result(receive_json);
+                            }
 
                             answerToClient(response);
 
@@ -266,6 +269,49 @@ public class Server {
 
 
             response.put("body", friendsArray);
+            response.put("status", 200);
+
+
+            con.close();
+
+            return response;
+        }
+
+        public JSONObject get_search_result(JSONObject receive_json) throws SQLException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select user_id FROM user WHERE name like ? ;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, "%" + receive_json.getString("search_keyword") + "%");
+            ResultSet rs = ps.executeQuery();
+
+            JSONArray searchedArray = new JSONArray();
+
+            while (rs.next()) {
+                String query2 = "select * FROM user WHERE user_id =?;";
+                PreparedStatement ps2 = con.prepareStatement(query2);
+                ps2.setString(1, rs.getString("user_id"));
+                ResultSet rs2 = ps2.executeQuery();
+
+                while (rs2.next()) {
+                    HashMap<String, String> userinfo = new HashMap<>();
+                    userinfo.put("user_id", rs2.getString("user_id"));
+                    userinfo.put("name", rs2.getString("name"));
+                    userinfo.put("nickname", rs2.getString("nickname"));
+                    userinfo.put("email", rs2.getString("email"));
+                    userinfo.put("last_online", rs2.getString("last_online"));
+                    userinfo.put("status_message", rs2.getString("status_message"));
+
+                    searchedArray.put(new JSONObject(userinfo));
+                }
+
+            }
+
+
+            response.put("body", searchedArray);
             response.put("status", 200);
 
 

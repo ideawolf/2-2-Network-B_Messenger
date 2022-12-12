@@ -60,12 +60,12 @@ public class Example_API {
 //        }
         try {
             JSONObject json = new JSONObject();
-            json.put("command", "ADD_FRIEND");
-            json.put("id", "qwer");
-            json.put("friend_id", "asdf");
+            json.put("command", "SEARCH");
+            json.put("search_keyword", "도");
             Socket socket = new Socket("localhost", 35014);
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
 
             out.write(json.toString());
             out.newLine();
@@ -75,14 +75,11 @@ public class Example_API {
 
             JSONObject response = new JSONObject(response_str);
 
-            int status = response.getInt("status");
-            String body = response.getString("body");
+            System.out.println("reponse: " + response);
 
-            System.out.println("Status : " + status);
-            System.out.println("body : " + body);
+            JSONArray searchList = response.getJSONArray("body");
 
-            JOptionPane.showOptionDialog(null, "친구추가 완료", "알림",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
+            System.out.println(searchList);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -261,6 +258,34 @@ public class Example_API {
 
             JOptionPane.showOptionDialog(null, "친구추가 완료", "알림",
                     JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void get_search_result(){
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "SEARCH");
+            json.put("search_key", "도");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+
+            JSONObject response = new JSONObject(response_str);
+
+            System.out.println("reponse: " + response);
+
+            JSONArray searchList = response.getJSONArray("body");
+
+            System.out.println(searchList);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

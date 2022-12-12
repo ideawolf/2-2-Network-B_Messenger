@@ -85,7 +85,7 @@ public class ClientUser {
         }
     }
 
-    private void getFriendListInfo() {
+    public void getFriendListInfo() {
         try {
             Socket socket = new Socket("localhost", 35014);
 

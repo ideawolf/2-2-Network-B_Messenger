@@ -20,6 +20,8 @@ public class ChatMain extends JFrame {
 
     ClientUser USER;
 
+    private JPanel friendList;
+    private JScrollPane friendListScroll;
     private JLabel usernameLabel;
     private JLabel userNicknameLabel;
     private JLabel userStatusMessageLabel;
@@ -91,10 +93,10 @@ public class ChatMain extends JFrame {
         friendListDesc.setHorizontalAlignment(SwingConstants.CENTER);
         add(friendListDesc);
 
-        JPanel friendList = new JPanel();
+        friendList = new JPanel();
         friendList.setBackground(new Color(0xF4F3FF));
         friendList.setLayout(new BoxLayout(friendList, BoxLayout.Y_AXIS));
-        JScrollPane friendListScroll = new JScrollPane(friendList,
+        friendListScroll = new JScrollPane(friendList,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         friendListScroll.getVerticalScrollBar().setUnitIncrement(15);
         friendListScroll.setBounds(50, 150, 300, 250);
@@ -158,6 +160,16 @@ public class ChatMain extends JFrame {
         userSearchField.setBounds(500, 25, 225, 30);
         add(userSearchField);
 
+        // 검색결과
+        JPanel userSearchList = new JPanel();
+        userSearchList.setBackground(new Color(0xF4F3FF));
+        userSearchList.setLayout(new BoxLayout(userSearchList, BoxLayout.Y_AXIS));
+        JScrollPane userSearchListScroll = new JScrollPane(userSearchList,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        userSearchListScroll.getVerticalScrollBar().setUnitIncrement(15);
+        userSearchListScroll.setBounds(425, 100, 325, 400);
+        add(userSearchListScroll);
+
         userSearchField.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
                 search();
@@ -174,24 +186,41 @@ public class ChatMain extends JFrame {
             public void search() {
                 System.out.println("changed!");
                 // 검색창에 입력할때마다 검색
+                try {
+                    JSONObject json = new JSONObject();
+                    json.put("command", "SEARCH");
+                    json.put("search_keyword", userSearchField.getText());
+                    Socket socket = new Socket("localhost", 35014);
+                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+                    out.write(json.toString());
+                    out.newLine();
+                    out.flush();
+
+                    String response_str = in.readLine();
+
+                    JSONObject response = new JSONObject(response_str);
+
+                    System.out.println("reponse: " + response);
+
+                    JSONArray searchList = response.getJSONArray("body");
+
+                    if (searchList != null) {
+                        userSearchList.removeAll();
+                        if(!userSearchField.getText().equals("")) {
+                            for (int i = 0; i < searchList.length(); i++)
+                                userSearchList.add(new searched(searchList.getJSONObject(i), USER.getId()));
+
+                            userSearchListScroll.setViewportView(userSearchList);
+                        }
+                    }
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
-
-        // 검색결과
-        JPanel userSearchList = new JPanel();
-        userSearchList.setBackground(new Color(0xF4F3FF));
-        userSearchList.setLayout(new BoxLayout(userSearchList, BoxLayout.Y_AXIS));
-        JScrollPane userSearchListScroll = new JScrollPane(userSearchList,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        userSearchListScroll.getVerticalScrollBar().setUnitIncrement(15);
-        userSearchListScroll.setBounds(425, 100, 325, 400);
-        add(userSearchListScroll);
-
-        // 반복문 시작
-        userSearchList.add(new searched(USER.getFriendList().getJSONObject(0), USER.getName()));
-        userSearchList.add(new searched(USER.getFriendList().getJSONObject(0), USER.getName()));
-        userSearchList.add(new searched(USER.getFriendList().getJSONObject(0), USER.getName()));
-        // 반복문 끝
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -315,7 +344,7 @@ public class ChatMain extends JFrame {
                     JSONObject json = new JSONObject();
                     json.put("command", "ADD_FRIEND");
                     json.put("id", myId);
-                    json.put("name", user.getString("user_id"));
+                    json.put("friend_id", user.getString("user_id"));
                     Socket socket = new Socket("localhost", 35014);
                     BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -333,6 +362,15 @@ public class ChatMain extends JFrame {
 
                     System.out.println("Status : " + status);
                     System.out.println("body : " + body);
+
+                    USER.getFriendListInfo();
+
+                    friendList.removeAll();
+                    if (USER.getFriendList() != null) {
+                        for (int i = 0; i < USER.getFriendList().length(); i++)
+                            friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
+                    }
+                    friendListScroll.setViewportView(friendList);
 
                     JOptionPane.showOptionDialog(null, "친구추가 완료", "알림",
                             JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");

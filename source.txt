@@ -6,3 +6,6 @@ https://twinw.tistory.com/153
 
 비밀번호 Encrpyt
 https://gofnrk.tistory.com/79
+
+sqlite 키워드로 검색기능
+https://stackoverflow.com/questions/28261225/sqlite-select-from-like-statement-not-working
