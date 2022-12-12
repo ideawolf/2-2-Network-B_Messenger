@@ -1,5 +1,3 @@
-package model;
-
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -7,8 +5,11 @@ import java.io.BufferedReader;
 public class Always_Connect_Thread extends Thread {
     BufferedReader in;
 
-    public Always_Connect_Thread(BufferedReader in) {
+    ChatMain chatMain;
+
+    public Always_Connect_Thread(BufferedReader in, ChatMain chatMain) {
         this.in = in;
+        this.chatMain = chatMain;
     }
 
     @Override
@@ -24,6 +25,11 @@ public class Always_Connect_Thread extends Thread {
                 JSONObject response = new  JSONObject(response_str);
 
                 System.out.println("New Message: " + response);
+
+                if(response.getString("command").equals("info_edited"))
+                {
+                    chatMain.reloadFriendList();
+                }
             }
 
         } catch (Exception e){

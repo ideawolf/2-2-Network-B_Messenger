@@ -20,11 +20,22 @@ public class ChatMain extends JFrame {
 
     ClientUser USER;
 
-    private JPanel friendList;
-    private JScrollPane friendListScroll;
+    JPanel friendList;
+    JScrollPane friendListScroll;
     private JLabel usernameLabel;
     private JLabel userNicknameLabel;
     private JLabel userStatusMessageLabel;
+
+    public void reloadFriendList() {
+        USER.getFriendListInfo();
+
+        friendList.removeAll();
+        if (USER.getFriendList() != null) {
+            for (int i = 0; i < USER.getFriendList().length(); i++)
+                friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
+        }
+        friendListScroll.setViewportView(friendList);
+    }
 
     public static void main(String[] args) {
         new ChatMain("00000000-0000-0000-0000-000000000001");
@@ -416,14 +427,7 @@ public class ChatMain extends JFrame {
                     System.out.println("Status : " + status);
                     System.out.println("body : " + body);
 
-                    USER.getFriendListInfo();
-
-                    friendList.removeAll();
-                    if (USER.getFriendList() != null) {
-                        for (int i = 0; i < USER.getFriendList().length(); i++)
-                            friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
-                    }
-                    friendListScroll.setViewportView(friendList);
+                    reloadFriendList();
 
                     JOptionPane.showOptionDialog(null, "친구추가 완료", "알림",
                             JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"닫기"}, "닫기");

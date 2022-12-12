@@ -511,7 +511,7 @@ public class Server {
         }
 
 
-        public JSONObject edit_info(JSONObject receive_json) throws SQLException {
+        public JSONObject edit_info(JSONObject receive_json) throws SQLException, IOException {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
@@ -527,6 +527,18 @@ public class Server {
             ps2.setString(2, receive_json.getString("statusMessage"));
             ps2.setString(3, userid);
             ps2.executeUpdate();
+
+            String query = "select from_user_id FROM friend WHERE to_user_id=?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, userid);
+            ResultSet rs = ps.executeQuery();
+
+            JSONObject res_broadcast = new JSONObject();
+            res_broadcast.put("command", "info_edited");
+            while (rs.next()) {
+                String from_user_id = rs.getString("from_user_id");
+                broadcast(from_user_id, res_broadcast);
+            }
 
             response.put("status", 200);
 

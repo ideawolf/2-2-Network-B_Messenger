@@ -1,5 +1,4 @@
 import function.Encrypt;
-import model.Always_Connect_Thread;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
@@ -86,8 +85,8 @@ public class Login extends JFrame {
                 } else {
                     // 로그인 성공해서 chatmain으로 넘어가는 부분
                     dispose();
-                    new ChatMain(response.getString("access-token"));
-                    Always_Connect_Thread alwaysConnectThread = new Always_Connect_Thread(in);
+                    ChatMain chatMain = new ChatMain(response.getString("access-token"));
+                    Always_Connect_Thread alwaysConnectThread = new Always_Connect_Thread(in, chatMain);
                     alwaysConnectThread.start();
                 }
 
