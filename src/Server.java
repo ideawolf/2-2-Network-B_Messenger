@@ -537,9 +537,12 @@ public class Server {
             JSONObject response = new JSONObject();
             response.put("status", 400);
 
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String sender_id = user_token_Map.get(access_token);
 
             int room_id = receive_json.getInt("room_id");
-            String sender = receive_json.getString("sender");
+            String sender = sender_id;
             String msg = receive_json.getString("msg");
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
@@ -549,12 +552,15 @@ public class Server {
             ps.setInt(1, room_id);
             ResultSet rs = ps.executeQuery();
 
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
             JSONArray user_id_arr = new JSONArray();
             JSONObject res_broadcast = new JSONObject();
-            res_broadcast.put("command", "invited");
+            res_broadcast.put("command", "recieve_message");
             res_broadcast.put("body", msg);
             res_broadcast.put("sender", sender);
-            res_broadcast.put("time", sender);
+            res_broadcast.put("time", localDateTimeFormat);
             while (rs.next()) {
                 String to_user_id = rs.getString("user_id");
                 broadcast(to_user_id, res_broadcast);

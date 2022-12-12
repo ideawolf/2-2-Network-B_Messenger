@@ -13,14 +13,12 @@ public class Example_Send_Message {
     public static void main(String[] args) {
         try {
             JSONObject json = new JSONObject();
-            json.put("command", "CREATE_ROOM");
+            json.put("command", "SEND_MESSAGE");
             json.put("access-token", "00000000-0000-0000-0000-000000000001");
 
-            JSONArray invite_user_list = new JSONArray();
-            invite_user_list.put("test_user_2");
-            invite_user_list.put("test_user_3");
+            json.put("room_id", 8);
+            json.put("msg", "This is test message");
 
-            json.put("userlist", invite_user_list);
 
 //            json.put("access-token", "00000000-0000-0000-0000-000000000001");
             Socket socket = new Socket("localhost", 35014);
