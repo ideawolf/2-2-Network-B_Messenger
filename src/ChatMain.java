@@ -188,7 +188,9 @@ public class ChatMain extends JFrame {
         add(userSearchListScroll);
 
         // 반복문 시작
-
+        userSearchList.add(new searched(USER.getFriendList().getJSONObject(0), USER.getName()));
+        userSearchList.add(new searched(USER.getFriendList().getJSONObject(0), USER.getName()));
+        userSearchList.add(new searched(USER.getFriendList().getJSONObject(0), USER.getName()));
         // 반복문 끝
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -204,12 +206,12 @@ public class ChatMain extends JFrame {
             setBorder(new EmptyBorder(10, 20, 10, 0));
             setBackground(new Color(0xF4F3FF));
 
-            JLabel name = new JLabel(friend.getString("user_id"));
+            JLabel name = new JLabel(friend.getString("name"));
             name.setBounds(10, 10, 90, 30);
             name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             add(name);
 
-            JLabel dailyWord = new JLabel("오늘의 한마디");
+            JLabel dailyWord = new JLabel(friend.getString("status_message"));
             dailyWord.setBounds(100, 10, 175, 30);
             dailyWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
             dailyWord.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -240,7 +242,7 @@ public class ChatMain extends JFrame {
                         friend.getString("name"),
                         friend.getString("nickname"),
                         friend.getString("email"),
-                        friend.getString("user_id"));
+                        friend.getString("last_online"));
             });
 
             item2.addActionListener(e -> {
@@ -261,13 +263,31 @@ public class ChatMain extends JFrame {
         }
     }
 
-    class searched extends JLabel {
+    class searched extends JPanel {
 
         searched(JSONObject user, String myId) {
-            super(user.getString("user_id"));
-            setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            super(null);
             Container comp = this;
-            setBorder(new EmptyBorder(20, 20, 20, 0));
+            setMaximumSize(new Dimension(650, 51));
+            setBorder(new EmptyBorder(10, 20, 10, 0));
+            setBackground(new Color(0xF4F3FF));
+
+            JLabel name = new JLabel(user.getString("name"));
+            name.setBounds(10, 10, 90, 30);
+            name.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            add(name);
+
+            JLabel dailyWord = new JLabel(user.getString("status_message"));
+            dailyWord.setBounds(100, 10, 200, 30);
+            dailyWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+            dailyWord.setHorizontalAlignment(SwingConstants.RIGHT);
+            add(dailyWord);
+
+            JLabel line = new JLabel();
+            line.setBounds(0, 50, 325, 1);
+            line.setBackground(Color.GRAY);
+            line.setOpaque(true);
+            add(line);
 
             /*
              * 우클릭 메뉴
@@ -286,7 +306,7 @@ public class ChatMain extends JFrame {
                         user.getString("name"),
                         user.getString("nickname"),
                         user.getString("email"),
-                        user.getString("user_id"));
+                        user.getString("last_online"));
             });
 
             item2.addActionListener(e -> {
