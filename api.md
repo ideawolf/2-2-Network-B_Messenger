@@ -48,3 +48,7 @@
   1. 보낸 사람 : {"body":["test_user_1","test_user_3","as"],"status":200}
   2. 메시지를 받는 사람 : {"sender":"test_user_1","time":"2022-12-12 16:44:31","body":"This is test message","command":"recieve_message"}
 
+#### Load My Room
+- request : {"access-token":"00000000-0000-0000-0000-000000000003","command":"LOAD_MYROOM"}
+- reponse: {"body":[{"last_time":"2022-12-12T17:47:07.419093","id":2},{"last_time":"2022-12-12T17:47:07.419093","id":8},{"last_time":"2022-12-12T17:47:07.419093","id":9}],"status":200}
+

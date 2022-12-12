@@ -587,9 +587,6 @@ public class Server {
 
             String user_id = user_token_Map.get(access_token);
 
-            int room_id = receive_json.getInt("room_id");
-            String msg = receive_json.getString("msg");
-
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
             String query = "select room_id FROM has_room WHERE user_id=?;";
@@ -605,7 +602,22 @@ public class Server {
             JSONArray room_list = new JSONArray();
 
             while (rs.next()) {
-                room_list.put(rs.getInt(room_id));
+                JSONObject room = new JSONObject();
+                int room_id = rs.getInt("room_id");
+                room.put("id", room_id);
+
+                String query2 = "select * FROM room WHERE id =?;";
+                PreparedStatement ps2 = con.prepareStatement(query2);
+
+                ps2.setInt(1, room_id);
+
+                ResultSet rs2 = ps2.executeQuery();
+
+                while (rs2.next()) {
+                    room.put("last_time", rs2.getString("last_time"));
+                }
+
+                room_list.put(room);
             }
 
             response.put("body", room_list);
