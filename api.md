@@ -58,3 +58,8 @@
 - response :
   1. 만든 사람 : {"body":"Ok","status":200}
   2. 초대 받은 사람 : {"room_id":0,"body":"you are invited in 0","command":"invited"}
+
+
+#### Accept Invite
+- request : {"room_id":8,"access-token":"00000000-0000-0000-0000-000000000001","command":"ACCEPT_INVITE"}
+- response : {"body":"Ok","status":200}

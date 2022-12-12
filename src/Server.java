@@ -99,6 +99,9 @@ public class Server {
                             if(receive_json.getString("command").equals("INVITE_ROOM")){
                                 response = invite_room(receive_json);
                             }
+                            if(receive_json.getString("command").equals("ACCEPT_INVITE")){
+                                response = accept_invite(receive_json);
+                            }
 
                             answerToClient(response);
 
@@ -528,6 +531,40 @@ public class Server {
                 }
 
             }
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+            con.close();
+
+            return response;
+        }
+
+        public JSONObject accept_invite(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            int room_id = receive_json.getInt("room_id");
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+
+            String query = "UPDATE has_room SET IsAccept = 1 WHERE room_id = ? AND user_id = ?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, room_id);
+            ps.setString(2, userid);
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println(userid + " accepted invite from : (room_id: " + room_id + ")");
+            }
+
             response.put("body", "Ok");
             response.put("status", 200);
 
