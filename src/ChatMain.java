@@ -100,6 +100,9 @@ public class ChatMain extends JFrame {
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         friendListScroll.getVerticalScrollBar().setUnitIncrement(15);
         friendListScroll.setBounds(50, 150, 300, 250);
+
+
+
         add(friendListScroll);
 
 
@@ -170,6 +173,39 @@ public class ChatMain extends JFrame {
         userSearchListScroll.setBounds(425, 100, 325, 400);
         add(userSearchListScroll);
 
+        // 초기 userSearchList
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "SEARCH");
+            json.put("search_keyword", userSearchField.getText());
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+
+            JSONObject response = new JSONObject(response_str);
+
+            System.out.println("response: " + response);
+
+            JSONArray searchList = response.getJSONArray("body");
+
+            for (int i = 0; i < searchList.length(); i++) {
+                userSearchList.add(new searched(searchList.getJSONObject(i), USER.getId()));
+            }
+            userSearchListScroll.setViewportView(userSearchList);
+
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+
+
         userSearchField.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
                 search();
@@ -209,7 +245,7 @@ public class ChatMain extends JFrame {
 
                     if (searchList != null) {
                         userSearchList.removeAll();
-                        if(!userSearchField.getText().equals("")) {
+                        if (!userSearchField.getText().equals("")) {
                             for (int i = 0; i < searchList.length(); i++)
                                 userSearchList.add(new searched(searchList.getJSONObject(i), USER.getId()));
 
@@ -231,6 +267,7 @@ public class ChatMain extends JFrame {
         friend(JSONObject friend) {
             super(null);
             Container comp = this;
+            setPreferredSize(new Dimension(600,51));
             setMaximumSize(new Dimension(600, 51));
             setBorder(new EmptyBorder(10, 20, 10, 0));
             setBackground(new Color(0xF4F3FF));
@@ -244,13 +281,10 @@ public class ChatMain extends JFrame {
             isOnline.setBounds(100, 10, 50, 30);
             isOnline.setFont(new Font("맑은 고딕", Font.BOLD, 10));
             isOnline.setHorizontalAlignment(SwingConstants.CENTER);
-            if(friend.getString("isOnline").equals("1"))
-            {
+            if (friend.getString("isOnline").equals("1")) {
                 isOnline.setText("온라인");
                 isOnline.setForeground(Color.GREEN);
-            }
-            else
-            {
+            } else {
                 isOnline.setText("오프라인");
                 isOnline.setForeground(Color.RED);
             }
@@ -313,6 +347,7 @@ public class ChatMain extends JFrame {
         searched(JSONObject user, String myId) {
             super(null);
             Container comp = this;
+            setPreferredSize(new Dimension(300,51));
             setMaximumSize(new Dimension(650, 51));
             setBorder(new EmptyBorder(10, 20, 10, 0));
             setBackground(new Color(0xF4F3FF));
@@ -529,7 +564,6 @@ public class ChatMain extends JFrame {
 
         formatter = DateTimeFormatter.ofPattern("HHmm");
         String searchTime = now.format(formatter);
-
 
 
         // 공공 데이터 포탈 api 예제 활용
