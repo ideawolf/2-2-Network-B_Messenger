@@ -43,6 +43,12 @@ public class Always_Connect_Thread extends Thread {
                         chatMain.deleteRoom(response.getInt("room_id"));
                     }
                 }
+                if(response.getString("command").equals("file_receive")) {
+                    chatMain.receiveFile(response.getString("sender_id"), response.getString("file_name"));
+                }
+                if(response.getString("command").equals("file_send")) {
+                    chatMain.sendFile();
+                }
             }
 
         } catch (Exception e){

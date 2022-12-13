@@ -7,7 +7,7 @@ public class ChatRoom extends JFrame {
 
     ImageIcon file_upload_img = new ImageIcon("images/file_upload.png");
 
-    private final JFileChooser fileChooser = new JFileChooser();
+
 
     ChatRoom(int room_id) {
         setSize(600, 540);
@@ -45,6 +45,7 @@ public class ChatRoom extends JFrame {
         });
 
         fileSendButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
             fileChooser.showOpenDialog(this);
             StringTokenizer tokenizer = new StringTokenizer(fileChooser.getSelectedFile().toString(), "\\");
             ArrayList<String> splitStr = new ArrayList<>();
@@ -54,6 +55,8 @@ public class ChatRoom extends JFrame {
             int option = JOptionPane.showOptionDialog(null, splitStr.get(splitStr.size() - 1) + " 파일을 전송하시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"보내기", "취소"}, "보내기");
             if (option == 0) {
                 chatList.append("유저가 파일을 전송하려고 합니다\n");
+
+
                 //function.FileIO.FileSend(fileChooser.getSelectedFile());
             }
         });

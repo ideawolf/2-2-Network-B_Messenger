@@ -111,7 +111,12 @@ public class Server {
                             if(receive_json.getString("command").equals("LEAVE_ROOM")){
                                 response = leave_room(receive_json);
                             }
-
+                            if(receive_json.getString("command").equals("SEND_FILE")){
+                                response = send_file(receive_json);
+                            }
+                            if(receive_json.getString("command").equals("ACCEPT_FILE")){
+                                response = accept_file(receive_json);
+                            }
                             answerToClient(response);
 
                             socket.close();
@@ -930,6 +935,55 @@ public class Server {
             return response;
         }
 
+
+        public JSONObject send_file(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            JSONArray userListJson = receive_json.getJSONArray("userlist");
+            ArrayList<String> userList = new ArrayList<String>();
+
+            if (userListJson != null) {
+                for (int i = 0; i < userListJson.length(); i++) {
+                    userList.add(userListJson.getString(i));
+                }
+            }
+            for (String user : userList) {
+                JSONObject fileResponse = new JSONObject();
+                fileResponse.put("command", "file_receive");
+                fileResponse.put("sender_id", userid);
+                fileResponse.put("file_name", receive_json.getString("file_name"));
+                broadcast(user, fileResponse);
+            }
+
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+            return response;
+        }
+
+        public JSONObject accept_file(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            JSONObject fileResponse = new JSONObject();
+            fileResponse.put("command", "file_send");
+            broadcast(receive_json.getString("to_sender"), fileResponse);
+
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+
+            return response;
+        }
 
     }
 }

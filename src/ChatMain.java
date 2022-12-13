@@ -1,3 +1,5 @@
+import function.FileIO;
+
 import java.awt.event.*;
 import java.awt.*;
 import java.io.*;
@@ -9,8 +11,10 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.StringTokenizer;
 
 import model.ClientUser;
 import org.json.JSONObject;
@@ -26,6 +30,8 @@ public class ChatMain extends JFrame {
     private JLabel usernameLabel;
     private JLabel userNicknameLabel;
     private JLabel userStatusMessageLabel;
+    public File recentFile;
+
     HashMap<Integer, ChatRoom> chatRoom = new HashMap<>();
 
     public void reloadFriendList() {
@@ -34,7 +40,7 @@ public class ChatMain extends JFrame {
         friendList.removeAll();
         if (USER.getFriendList() != null) {
             for (int i = 0; i < USER.getFriendList().length(); i++)
-                friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
+                friendList.add(new friend(USER.getFriendList().getJSONObject(i), this));
         }
         friendListScroll.setViewportView(friendList);
     }
@@ -44,6 +50,40 @@ public class ChatMain extends JFrame {
         usernameLabel.setText(USER.getName());
         userNicknameLabel.setText(USER.getNickname());
         userStatusMessageLabel.setText(USER.getStatusMessage());
+    }
+
+    public void receiveFile(String sender_id, String fileName) {
+        int option = JOptionPane.showOptionDialog(null, sender_id + "로부터 파일을 받으시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"확인", "취소"}, "확인");
+        if (option == 0) {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("command", "ACCEPT_FILE");
+                json.put("access-token", USER.getAccessToken());
+                json.put("to_sender", sender_id);
+
+                Socket socket = new Socket("localhost", 35014);
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                out.write(json.toString());
+                out.newLine();
+                out.flush();
+
+                FileIO.FileReceive(fileName);
+
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    public void sendFile() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        FileIO.FileSend(recentFile);
     }
 
     public void deleteRoom(int room_id) {
@@ -173,7 +213,7 @@ public class ChatMain extends JFrame {
         // friend 클래스에 친구 이름을 넣어서 리스트에 추가함
         if (USER.getFriendList() != null) {
             for (int i = 0; i < USER.getFriendList().length(); i++)
-                friendList.add(new friend(USER.getFriendList().getJSONObject(i)));
+                friendList.add(new friend(USER.getFriendList().getJSONObject(i), this));
         }
 
         // 리스트 아래에 실시간 공공정보
@@ -337,7 +377,7 @@ public class ChatMain extends JFrame {
 
     class friend extends JPanel {
 
-        friend(JSONObject friend) {
+        friend(JSONObject friend, ChatMain chatMain) {
             super(null);
             Container comp = this;
             setPreferredSize(new Dimension(600,51));
@@ -436,6 +476,55 @@ public class ChatMain extends JFrame {
 
             item3.addActionListener(e -> {
                 // 파일 보내기
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.showOpenDialog(this);
+                chatMain.recentFile = fileChooser.getSelectedFile();
+                StringTokenizer tokenizer = new StringTokenizer(fileChooser.getSelectedFile().toString(), "\\");
+                ArrayList<String> splitStr = new ArrayList<>();
+                while(tokenizer.hasMoreTokens()) {
+                    splitStr.add(tokenizer.nextToken());
+                }
+                int option = JOptionPane.showOptionDialog(null, splitStr.get(splitStr.size() - 1) + " 파일을 전송하시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"보내기", "취소"}, "보내기");
+                if (option == 0) {
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("command", "SEND_FILE");
+                        json.put("access-token", USER.getAccessToken());
+
+                        JSONArray invite_user_list = new JSONArray();
+                        invite_user_list.put(friend.getString("user_id"));
+                        json.put("userlist", invite_user_list);
+                        json.put("file_name", splitStr.get(splitStr.size() - 1));
+
+                        Socket socket = new Socket("localhost", 35014);
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+                        out.write(json.toString());
+                        out.newLine();
+                        out.flush();
+
+                        String response_str = in.readLine();
+
+                        JSONObject response = new JSONObject(response_str);
+
+                        System.out.println("response: " + response);
+
+//                        JSONArray searchList = response.getJSONArray("body");
+//
+//                        for (int i = 0; i < searchList.length(); i++) {
+//                            userSearchList.add(new searched(searchList.getJSONObject(i), USER.getId()));
+//                        }
+//                        userSearchListScroll.setViewportView(userSearchList);
+
+
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    //FileIO.FileSend(fileChooser.getSelectedFile());
+                    //function.FileIO.FileSend(fileChooser.getSelectedFile());
+                }
             });
 
             addMouseListener(new MouseAdapter() {
