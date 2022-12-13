@@ -53,7 +53,7 @@ public class ChatMain extends JFrame {
     }
 
     public void receiveFile(String sender_id, String fileName) {
-        int option = JOptionPane.showOptionDialog(null, sender_id + "로부터 파일을 받으시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"확인", "취소"}, "확인");
+        int option = JOptionPane.showOptionDialog(null, sender_id + "(으)로부터 파일을 받으시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"확인", "취소"}, "확인");
         if (option == 0) {
             try {
                 JSONObject json = new JSONObject();

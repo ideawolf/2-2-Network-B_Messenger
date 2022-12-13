@@ -998,6 +998,14 @@ public class Server {
 
             String userid = user_token_Map.get(access_token);
 
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query2 = "select name from user where user_id = ?";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, userid);
+            ResultSet rs2 = ps2.executeQuery();
+
+
             JSONArray userListJson = receive_json.getJSONArray("userlist");
             ArrayList<String> userList = new ArrayList<String>();
 
@@ -1009,7 +1017,7 @@ public class Server {
             for (String user : userList) {
                 JSONObject fileResponse = new JSONObject();
                 fileResponse.put("command", "file_receive");
-                fileResponse.put("sender_id", userid);
+                fileResponse.put("sender_id", rs2.getString("name"));
                 fileResponse.put("file_name", receive_json.getString("file_name"));
                 broadcast(user, fileResponse);
                 // 받는 user 에게 파일 receive 명령을 보낸다.
@@ -1017,6 +1025,8 @@ public class Server {
 
             response.put("body", "Ok");
             response.put("status", 200);
+
+            con.close();
 
             return response;
         }
@@ -1031,6 +1041,12 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            String query2 = "select name from user where user_id = ?";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, userid);
+            ResultSet rs2 = ps2.executeQuery();
+
+
             String query = "select user_id from has_room where room_id = ? and IsAccept = 1 and user_id != ?";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, String.valueOf(receive_json.getInt("room_id")));
@@ -1040,7 +1056,7 @@ public class Server {
             while (rs.next()) {
                 JSONObject fileResponse = new JSONObject();
                 fileResponse.put("command", "file_receive");
-                fileResponse.put("sender_id", userid);
+                fileResponse.put("sender_id", rs2.getString("name"));
                 fileResponse.put("file_name", receive_json.getString("file_name"));
                 broadcast(rs.getString("user_id"), fileResponse);
                 // 받는 user 에게 파일 receive 명령을 보낸다.
