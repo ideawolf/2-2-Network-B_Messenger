@@ -83,7 +83,7 @@ public class ChatMain extends JFrame {
 
             if(response.getInt("status") == 200 && option == 1)
             {
-                chatRoom.put(room_id, new ChatRoom());
+                chatRoom.put(room_id, new ChatRoom(room_id));
             }
 
         } catch (Exception ex) {
@@ -425,7 +425,7 @@ public class ChatMain extends JFrame {
 
                         System.out.println("reponse: " + response);
 
-                        chatRoom.put(response.getInt("room_id"), new ChatRoom());
+                        chatRoom.put(response.getInt("room_id"), new ChatRoom(response.getInt("room_id")));
 
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);

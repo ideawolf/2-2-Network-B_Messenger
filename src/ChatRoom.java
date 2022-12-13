@@ -9,7 +9,7 @@ public class ChatRoom extends JFrame {
 
     private final JFileChooser fileChooser = new JFileChooser();
 
-    ChatRoom() {
+    ChatRoom(int room_id) {
         setSize(600, 540);
         setLayout(new FlowLayout());
         setBackground(Color.gray);
