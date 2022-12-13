@@ -17,6 +17,10 @@ public class ClientUser {
     private String birth;
     private String statusMessage;
 
+    public String getAccessToken() {
+        return accessToken;
+    }
+
     public JSONArray getFriendList() {
         return friendList;
     }
