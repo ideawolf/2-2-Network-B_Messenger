@@ -114,6 +114,9 @@ public class Server {
                             if(receive_json.getString("command").equals("SEND_FILE")){
                                 response = send_file(receive_json);
                             }
+                            if(receive_json.getString("command").equals("SEND_FILE_ROOM")){
+                                response = send_file_room(receive_json);
+                            }
                             if(receive_json.getString("command").equals("ACCEPT_FILE")){
                                 response = accept_file(receive_json);
                             }
@@ -967,8 +970,6 @@ public class Server {
 
             String userid = user_token_Map.get(access_token);
 
-            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
-
             JSONArray userListJson = receive_json.getJSONArray("userlist");
             ArrayList<String> userList = new ArrayList<String>();
 
@@ -987,6 +988,38 @@ public class Server {
 
             response.put("body", "Ok");
             response.put("status", 200);
+
+            return response;
+        }
+
+        public JSONObject send_file_room(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "select user_id from has_room where room_id = ? and IsAccept = 1 and user_id != ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, String.valueOf(receive_json.getInt("room_id")));
+            ps.setString(2, userid);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                JSONObject fileResponse = new JSONObject();
+                fileResponse.put("command", "file_receive");
+                fileResponse.put("sender_id", userid);
+                fileResponse.put("file_name", receive_json.getString("file_name"));
+                broadcast(rs.getString("user_id"), fileResponse);
+            }
+
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+            con.close();
 
             return response;
         }

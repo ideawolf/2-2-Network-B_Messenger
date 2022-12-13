@@ -1,4 +1,5 @@
 import model.ClientUser;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -24,7 +25,7 @@ public class ChatRoom extends JFrame {
                 + response.getString("sender_name") + " : " + response.getString("body"));
     }
 
-    ChatRoom(int room_id, ClientUser user) {
+    ChatRoom(int room_id, ClientUser user, ChatMain chatMain) {
         setSize(600, 540);
         setLayout(new FlowLayout());
         setBackground(Color.gray);
@@ -67,7 +68,7 @@ public class ChatRoom extends JFrame {
 
                 JSONObject response = new  JSONObject(response_str);
 
-                System.out.println("reponse: " + response);
+                System.out.println("response: " + response);
 
                 if(response.getInt("status") == 200)
                 {
@@ -99,6 +100,7 @@ public class ChatRoom extends JFrame {
         fileSendButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.showOpenDialog(this);
+            chatMain.recentFile = fileChooser.getSelectedFile();
             StringTokenizer tokenizer = new StringTokenizer(fileChooser.getSelectedFile().toString(), "\\");
             ArrayList<String> splitStr = new ArrayList<>();
             while(tokenizer.hasMoreTokens()) {
@@ -106,10 +108,65 @@ public class ChatRoom extends JFrame {
             }
             int option = JOptionPane.showOptionDialog(null, splitStr.get(splitStr.size() - 1) + " 파일을 전송하시겠습니까?", "알림", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"보내기", "취소"}, "보내기");
             if (option == 0) {
-                chatList.append("유저가 파일을 전송하려고 합니다\n");
+                try {
+                    JSONObject json = new JSONObject();
+                    json.put("command", "SEND_FILE_ROOM");
+                    json.put("access-token", USER.getAccessToken());
+                    json.put("room_id", room_id);
+
+                    json.put("file_name", splitStr.get(splitStr.size() - 1));
+
+                    Socket socket = new Socket("localhost", 35014);
+                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 
-                //function.FileIO.FileSend(fileChooser.getSelectedFile());
+                    out.write(json.toString());
+                    out.newLine();
+                    out.flush();
+
+                    String response_str = in.readLine();
+
+                    JSONObject response = new JSONObject(response_str);
+
+                    System.out.println("response: " + response);
+
+
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                try {
+                    JSONObject json = new JSONObject();
+                    json.put("command", "SEND_MESSAGE");
+                    json.put("access-token", USER.getAccessToken());
+
+                    json.put("room_id", room_id);
+                    json.put("msg", USER.getName() + "님이 파일을 전송합니다");
+
+                    Socket socket = new Socket("localhost", 35014);
+                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                    out.write(json.toString());
+                    out.newLine();
+                    out.flush();
+
+                    String response_str = in.readLine();
+
+                    JSONObject response = new  JSONObject(response_str);
+
+                    System.out.println("response: " + response);
+
+                    if(response.getInt("status") == 200)
+                    {
+                        chatList.setText(chatList.getText() + "\n" + USER.getName() + "님이 파일을 전송합니다");
+                        sendArea.setText("");
+                    }
+
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+
             }
         });
 

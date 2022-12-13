@@ -123,7 +123,7 @@ public class ChatMain extends JFrame {
 
             if(response.getInt("status") == 200 && option == 1)
             {
-                chatRoom.put(room_id, new ChatRoom(room_id, USER));
+                chatRoom.put(room_id, new ChatRoom(room_id, USER, this));
             }
 
         } catch (Exception ex) {
@@ -469,7 +469,7 @@ public class ChatMain extends JFrame {
 
                         System.out.println("response: " + response);
 
-                        chatRoom.put(response.getInt("room_id"), new ChatRoom(response.getInt("room_id"), USER));
+                        chatRoom.put(response.getInt("room_id"), new ChatRoom(response.getInt("room_id"), USER, chatMain));
 
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
@@ -515,19 +515,9 @@ public class ChatMain extends JFrame {
 
                         System.out.println("response: " + response);
 
-//                        JSONArray searchList = response.getJSONArray("body");
-//
-//                        for (int i = 0; i < searchList.length(); i++) {
-//                            userSearchList.add(new searched(searchList.getJSONObject(i), USER.getId()));
-//                        }
-//                        userSearchListScroll.setViewportView(userSearchList);
-
-
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
-                    //FileIO.FileSend(fileChooser.getSelectedFile());
-                    //function.FileIO.FileSend(fileChooser.getSelectedFile());
                 }
             });
 
