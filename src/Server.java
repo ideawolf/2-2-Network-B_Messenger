@@ -933,6 +933,15 @@ public class Server {
                 leave_broadcast.put("room_id", room_id);
                 leave_broadcast.put("time", localDateTimeFormat);
 
+                String query4 = "SELECT count(DISTINCT user_id) FROM has_room WHERE room_id=? AND IsAccept = 1;";
+                PreparedStatement ps4 = con.prepareStatement(query4);
+                ps4.setInt(1, room_id);
+                ResultSet rs4 = ps4.executeQuery();
+                while(rs4.next()) {
+                    int remain = rs4.getInt(1);
+                    leave_broadcast.put("remain", remain);
+                }
+
                 while(rs2.next()){
                     String to_user_id = rs2.getString("user_id");
                     broadcast(to_user_id, leave_broadcast);
