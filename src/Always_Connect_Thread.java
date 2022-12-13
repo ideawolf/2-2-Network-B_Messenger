@@ -43,7 +43,7 @@ public class Always_Connect_Thread extends Thread {
                     }
                 }
                 if(response.getString("command").equals("file_receive")) {
-                    chatMain.receiveFile(response.getString("sender_id"), response.getString("file_name"));
+                    chatMain.receiveFile(response.getString("sender_id"), response.getString("name"), response.getString("file_name"));
                 }
                 if(response.getString("command").equals("file_send")) {
                     chatMain.sendFile();

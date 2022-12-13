@@ -1017,7 +1017,8 @@ public class Server {
             for (String user : userList) {
                 JSONObject fileResponse = new JSONObject();
                 fileResponse.put("command", "file_receive");
-                fileResponse.put("sender_id", rs2.getString("name"));
+                fileResponse.put("sender_id", userid);
+                fileResponse.put("name", rs2.getString("name"));
                 fileResponse.put("file_name", receive_json.getString("file_name"));
                 broadcast(user, fileResponse);
                 // 받는 user 에게 파일 receive 명령을 보낸다.
@@ -1056,7 +1057,8 @@ public class Server {
             while (rs.next()) {
                 JSONObject fileResponse = new JSONObject();
                 fileResponse.put("command", "file_receive");
-                fileResponse.put("sender_id", rs2.getString("name"));
+                fileResponse.put("sender_id", userid);
+                fileResponse.put("name", rs2.getString("name"));
                 fileResponse.put("file_name", receive_json.getString("file_name"));
                 broadcast(rs.getString("user_id"), fileResponse);
                 // 받는 user 에게 파일 receive 명령을 보낸다.
