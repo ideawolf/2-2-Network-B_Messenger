@@ -57,6 +57,9 @@ public class Server {
                         JSONObject response = new JSONObject();
                         response.put("status", 400); // 기본값
                         response.put("body", "Server Do Nothing");  // 기본값
+
+
+                        // 명령 받은 command 에 따라 명령을 수행함
                         if (receive_json.getString("command").equals("LOGIN")) {
                             response = login(receive_json);
                             answerToClient(response);

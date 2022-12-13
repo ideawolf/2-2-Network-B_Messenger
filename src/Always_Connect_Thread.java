@@ -13,6 +13,7 @@ public class Always_Connect_Thread extends Thread {
         this.chatMain = chatMain;
     }
 
+    // 쓰레드를 이용하여 지속적으로 서버에게서 명령을 받음 / 대기
     @Override
     public void run() {
         try{
@@ -27,6 +28,7 @@ public class Always_Connect_Thread extends Thread {
 
                 System.out.println("New Message: " + response);
 
+                // 명령 받은 command 에 따라 명령을 수행함
                 if(response.getString("command").equals("info_edited"))
                 {
                     chatMain.reloadFriendList();
@@ -37,8 +39,10 @@ public class Always_Connect_Thread extends Thread {
                 }
                 if(response.getString("command").equals("invite_rejected"))
                 {
+                    // 방에 남은 인원이 1 이면
                     if(response.getInt("remain") == 1)
                     {
+                        // 방을 없앰
                         chatMain.deleteRoom(response.getInt("room_id"));
                     }
                 }

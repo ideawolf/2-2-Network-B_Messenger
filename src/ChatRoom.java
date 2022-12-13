@@ -38,7 +38,7 @@ public class ChatRoom extends JFrame {
                 + response.getString("leave_user_name") + "님이 나갔습니다.");
     }
 
-    ChatRoom(int room_id, ClientUser user, ChatMain chatMain) {
+    ChatRoom(int room_id, ClientUser user, ChatMain chatMain) { // 채팅방
         setSize(900, 600);
         setResizable(false);
         setLayout(null);
@@ -86,6 +86,7 @@ public class ChatRoom extends JFrame {
             throw new RuntimeException(ex);
         }
 
+        // 파일 전송 버튼
         JButton fileSendButton = new JButton(file_upload_img);
         fileSendButton.setBounds(25,425,90,90);
         fileSendButton.setFont(new Font("맑은 고딕", Font.BOLD, 12));
@@ -95,9 +96,11 @@ public class ChatRoom extends JFrame {
         fileSendButton.setFocusPainted(false);
         fileSendButton.setBorder(new LineBorder(new Color(0x8EAADB), 2, true));
 
+        // 텍스트 입력 area
         JTextArea sendArea = new JTextArea();
         sendArea.setBounds(150,425,300,90);
 
+        // 전송 버튼
         JButton sendButton = new JButton("보내기");
         sendButton.setBounds(475,425,90,90);
         sendButton.setFont(new Font("맑은 고딕", Font.BOLD, 12));

@@ -35,6 +35,8 @@ public class ChatMain extends JFrame {
     HashMap<Integer, ChatRoom> chatRoom = new HashMap<>();
 
     public void reloadFriendList() {
+        // friend list 를 새로 가져오고 표시함
+
         USER.getFriendListInfo();
 
         friendList.removeAll();
@@ -57,6 +59,7 @@ public class ChatMain extends JFrame {
         if (option == 0) {
             try {
                 JSONObject json = new JSONObject();
+                // 서버에 accept_file 명령을 보냄
                 json.put("command", "ACCEPT_FILE");
                 json.put("access-token", USER.getAccessToken());
                 json.put("to_sender", sender_id);
@@ -94,15 +97,18 @@ public class ChatMain extends JFrame {
     }
 
     public void invited(int room_id) {
+        // 초대 알림을 띄움
         int option = JOptionPane.showOptionDialog(null, "채팅에 초대되었습니다.", "알림",
                 JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"거부", "수락"}, "수락");
         try {
             JSONObject json = new JSONObject();
             if(option == 0)
             {
+                // 거절
                 json.put("command", "REJECT_INVITE");
             }
             else{
+                // 수락
                 json.put("command", "ACCEPT_INVITE");
             }
             json.put("access-token", USER.getAccessToken());
@@ -113,6 +119,7 @@ public class ChatMain extends JFrame {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            // 서버에게 수락/거절 유무를 보냄
             out.write(json.toString());
             out.newLine();
             out.flush();
