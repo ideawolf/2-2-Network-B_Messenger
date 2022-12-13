@@ -46,7 +46,7 @@ public class Example_Load_My_Room {
                 }
                 JSONObject response = new JSONObject(response_str);
 
-                System.out.println("reponse: " + response);
+                System.out.println("response: " + response);
 
                 JSONArray room_list = response.getJSONArray("body");
 

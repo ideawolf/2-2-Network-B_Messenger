@@ -50,7 +50,7 @@ public class Example_Create_Room {
                 }
                 JSONObject response = new  JSONObject(response_str);
 
-                System.out.println("reponse: " + response);
+                System.out.println("response: " + response);
             }
 
         } catch (Exception ex) {
@@ -82,7 +82,7 @@ public class Example_Create_Room {
                 }
                 JSONObject response = new  JSONObject(response_str);
 
-                System.out.println("reponse: " + response);
+                System.out.println("response: " + response);
             }
 
         } catch (Exception ex) {
@@ -116,7 +116,7 @@ public class Example_Create_Room {
 
             JSONObject response = new JSONObject(response_str);
 
-            System.out.println("reponse: " + response);
+            System.out.println("response: " + response);
 
             JSONArray friendList = response.getJSONArray("body");
 
@@ -150,7 +150,7 @@ public class Example_Create_Room {
 
             JSONObject response = new JSONObject(response_str);
 
-            System.out.println("reponse: " + response);
+            System.out.println("response: " + response);
 
             JSONObject userInfo = response.getJSONObject("body");
 
@@ -178,7 +178,7 @@ public class Example_Create_Room {
 
             JSONObject response = new JSONObject(response_str);
 
-            System.out.println("reponse: " + response);
+            System.out.println("response: " + response);
 
             JSONObject roomsJson = response.getJSONObject("body");
 

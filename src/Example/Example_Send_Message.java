@@ -38,7 +38,7 @@ public class Example_Send_Message {
                 }
                 JSONObject response = new  JSONObject(response_str);
 
-                System.out.println("reponse: " + response);
+                System.out.println("response: " + response);
             }
 
         } catch (Exception ex) {

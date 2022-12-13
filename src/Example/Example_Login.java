@@ -13,7 +13,7 @@ public class Example_Login {
         try {
             JSONObject json = new JSONObject();
             json.put("command", "LOGIN");
-            json.put("id", "test_user_3");
+            json.put("id", "test_user_1");
             json.put("password", "test_password");
 //            json.put("access-token", "00000000-0000-0000-0000-000000000001");
             Socket socket = new Socket("localhost", 35014);
@@ -33,7 +33,7 @@ public class Example_Login {
                 }
                 JSONObject response = new  JSONObject(response_str);
 
-                System.out.println("reponse: " + response);
+                System.out.println("response: " + response);
             }
 
         } catch (Exception ex) {

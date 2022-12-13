@@ -79,7 +79,7 @@ public class ChatMain extends JFrame {
 
             JSONObject response = new  JSONObject(response_str);
 
-            System.out.println("reponse: " + response);
+            System.out.println("response: " + response);
 
             if(response.getInt("status") == 200 && option == 1)
             {
@@ -302,7 +302,7 @@ public class ChatMain extends JFrame {
 
                     JSONObject response = new JSONObject(response_str);
 
-                    System.out.println("reponse: " + response);
+                    System.out.println("response: " + response);
 
                     JSONArray searchList = response.getJSONArray("body");
 
@@ -423,7 +423,7 @@ public class ChatMain extends JFrame {
 
                         JSONObject response = new  JSONObject(response_str);
 
-                        System.out.println("reponse: " + response);
+                        System.out.println("response: " + response);
 
                         chatRoom.put(response.getInt("room_id"), new ChatRoom(response.getInt("room_id")));
 
