@@ -790,11 +790,24 @@ public class Server {
             LocalDateTime localDateTime = LocalDateTime.now();
             String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
+            String query2 = "select * FROM user WHERE user_id =?;";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, sender_id);
+            ResultSet rs2 = ps2.executeQuery();
+
             JSONArray user_id_arr = new JSONArray();
             JSONObject res_broadcast = new JSONObject();
+
+            while(rs2.next()){
+                String sender_name = rs2.getString("name");
+                String sender_nickname = rs2.getString("nickname");
+                res_broadcast.put("sender", sender_id);
+                res_broadcast.put("sender_name", sender_name);
+                res_broadcast.put("sender_nickname", sender_nickname);
+            }
+
             res_broadcast.put("command", "recieve_message");
             res_broadcast.put("body", msg);
-            res_broadcast.put("sender", sender_id);
             res_broadcast.put("room_id", room_id);
             res_broadcast.put("time", localDateTimeFormat);
             while (rs.next()) {

@@ -46,7 +46,7 @@
 - request : {"room_id":8,"msg":"This is test message","access-token":"00000000-0000-0000-0000-000000000001","command":"SEND_MESSAGE"}
 - response :
   1. 보낸 사람 : {"body":["test_user_1","test_user_3","as"],"status":200}
-  2. 메시지를 받는 사람 : {"room_id":8,"sender":"test_user_1","time":"2022-12-12 16:44:31","body":"This is test message","command":"recieve_message"}
+  2. 메시지를 받는 사람 : {"room_id":8,"sender":"test_user_1","sender_nickname":"test_user_1","time":"2022-12-13T19:47:42.713446","body":"This is test message","command":"recieve_message"}
 
 #### Load My Room
 - request : {"access-token":"00000000-0000-0000-0000-000000000003","command":"LOAD_MYROOM"}
