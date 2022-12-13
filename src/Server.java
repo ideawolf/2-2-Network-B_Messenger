@@ -108,6 +108,9 @@ public class Server {
                             if(receive_json.getString("command").equals("REJECT_INVITE")){
                                 response = reject_invite(receive_json);
                             }
+                            if(receive_json.getString("command").equals("LEAVE_ROOM")){
+                                response = leave_room(receive_json);
+                            }
 
                             answerToClient(response);
 
@@ -466,12 +469,13 @@ public class Server {
 
             String userid = user_token_Map.get(access_token);
 
+            int room_id = receive_json.getInt("room_id");
+
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
             LocalDateTime localDateTime = LocalDateTime.now();
             String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
-            int room_id = receive_json.getInt("room_id");
 
             String query2 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
             PreparedStatement ps2 = con.prepareStatement(query2);
@@ -491,6 +495,22 @@ public class Server {
                 }
 
                 for (String user : userList) {
+
+                    String query = "select * FROM has_room WHERE room_id=? AND user_id = ?;";
+                    PreparedStatement ps = con.prepareStatement(query);
+                    ps.setInt(1, room_id);
+                    ps.setString(2, user);
+                    ResultSet rs = ps.executeQuery();
+
+                    JSONObject failedResponse = new JSONObject();
+
+//                    while(rs.next()){
+//                        failedResponse.put("body", user + " is already invited.");
+//                        failedResponse.put("status", 400);
+//
+//                        answerToClient(failedResponse);
+//                    }
+
                     String query3 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
                     PreparedStatement ps3 = con.prepareStatement(query3);
                     ps3.setString(1, user);
@@ -838,6 +858,61 @@ public class Server {
 
             con.close();
 
+
+            return response;
+        }
+
+        public JSONObject leave_room(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            int room_id = receive_json.getInt("room_id");
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            String query = "DELETE FROM has_room WHERE user_id = ? AND room_id = ?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, userid);
+            ps.setInt(2, room_id);
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println(userid + " leave room from : (room_id: " + room_id + ")");
+
+                String query2 = "SELECT DISTINCT user_id FROM has_room WHERE room_id=? AND IsAccept = 1;";
+                PreparedStatement ps2 = con.prepareStatement(query2);
+                ps2.setInt(1, room_id);
+
+                ResultSet rs2 = ps2.executeQuery();
+
+                LocalDateTime localDateTime = LocalDateTime.now();
+                String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+
+                JSONObject leave_broadcast = new JSONObject();
+
+                leave_broadcast.put("command", "someone_leave");
+                leave_broadcast.put("body", userid + " leave room " + room_id);
+                leave_broadcast.put("leave_user_id", userid);
+                leave_broadcast.put("room_id", room_id);
+                leave_broadcast.put("time", localDateTimeFormat);
+
+                while(rs2.next()){
+                    String to_user_id = rs2.getString("user_id");
+                    broadcast(to_user_id, leave_broadcast);
+                }
+
+
+            }
+
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+            con.close();
 
             return response;
         }
