@@ -95,14 +95,14 @@ public class ChatMain extends JFrame {
         new ChatMain("00000000-0000-0000-0000-000000000001");
     }
 
-    ChatMain(String accessTk) {
+    ChatMain(String accessToken) {
         setSize(800, 600);
         setResizable(false);
         setLocationRelativeTo(null);
         setLayout(null);
         getContentPane().setBackground(Color.WHITE);
 
-        USER = new ClientUser(USER.getAccessToken());
+        USER = new ClientUser(accessToken);
         System.out.println(USER.getAccessToken());
 
         // 내 정보

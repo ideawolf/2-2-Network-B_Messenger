@@ -542,7 +542,7 @@ public class Server {
             while (rs.next()) {
                 int created_room_id = rs.getInt(1);
 
-                String query2 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
+                String query2 = "INSERT INTO has_room (user_id, room_id, IsAccept) VALUES (?, ?, 1);";
                 PreparedStatement ps2 = con.prepareStatement(query2);
                 ps2.setString(1, userid);
                 ps2.setInt(2, created_room_id);
@@ -601,9 +601,6 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            LocalDateTime localDateTime = LocalDateTime.now();
-            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
-
             String query = "UPDATE has_room SET IsAccept = 1 WHERE room_id = ? AND user_id = ?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, room_id);
@@ -635,9 +632,6 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
-            LocalDateTime localDateTime = LocalDateTime.now();
-            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
-
             String query = "UPDATE has_room SET IsAccept = 0 WHERE room_id = ? AND user_id = ?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, room_id);
@@ -654,17 +648,22 @@ public class Server {
             ps2.setInt(1, room_id);
             ResultSet rs2 = ps2.executeQuery();
 
+            System.out.println(rs2.getString("user_id"));
+
             String query3 = "select count(user_id) FROM has_room WHERE room_id = ? AND IsAccept = 1;";
             PreparedStatement ps3 = con.prepareStatement(query3);
             ps3.setInt(1, room_id);
             ResultSet rs3 = ps3.executeQuery();
             int remainNum = rs3.getInt(1);
 
+            System.out.println(remainNum);
+
             JSONObject res_broadcast = new JSONObject();
             res_broadcast.put("command", "invite_rejected");
             res_broadcast.put("remain", remainNum);
             res_broadcast.put("room_id", room_id);
             while (rs2.next()) {
+                System.out.println(rs2.getString("user_id"));
                 String in_user_id = rs2.getString("user_id");
                 broadcast(in_user_id, res_broadcast);
             }
