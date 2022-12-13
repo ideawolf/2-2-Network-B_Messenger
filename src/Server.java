@@ -948,16 +948,14 @@ public class Server {
                 // 해당 (나간) 유저의 자세한 정보를 가져온다.
                 String query3 = "select * FROM user WHERE user_id =?;";
                 PreparedStatement ps3 = con.prepareStatement(query3);
-                ps2.setString(1, userid);
+                ps3.setString(1, userid);
                 ResultSet rs3 = ps3.executeQuery();
-
-                JSONObject res_broadcast = new JSONObject();
 
                 while(rs3.next()){
                     String user_name = rs3.getString("name");
                     String user_nickname = rs3.getString("nickname");
-                    res_broadcast.put("leave_user_name", user_name);
-                    res_broadcast.put("leave_user_nickname", user_nickname);
+                    leave_broadcast.put("leave_user_name", user_name);
+                    leave_broadcast.put("leave_user_nickname", user_nickname);
                 }
 
                 leave_broadcast.put("command", "someone_leave");
