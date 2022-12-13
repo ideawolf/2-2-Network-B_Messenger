@@ -1015,6 +1015,7 @@ public class Server {
                 fileResponse.put("sender_id", userid);
                 fileResponse.put("file_name", receive_json.getString("file_name"));
                 broadcast(user, fileResponse);
+                // 받는 user 에게 파일 receive 명령을 보낸다.
             }
 
             response.put("body", "Ok");
@@ -1045,6 +1046,7 @@ public class Server {
                 fileResponse.put("sender_id", userid);
                 fileResponse.put("file_name", receive_json.getString("file_name"));
                 broadcast(rs.getString("user_id"), fileResponse);
+                // 받는 user 에게 파일 receive 명령을 보낸다.
             }
 
             response.put("body", "Ok");
@@ -1064,6 +1066,7 @@ public class Server {
             JSONObject fileResponse = new JSONObject();
             fileResponse.put("command", "file_send");
             broadcast(receive_json.getString("to_sender"), fileResponse);
+            // 보내는 user 에게 파일 file_send 명령을 보낸다.
 
             response.put("body", "Ok");
             response.put("status", 200);
