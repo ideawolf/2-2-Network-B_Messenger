@@ -12,15 +12,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Server {
-    static Map<UUID, String> user_token_Map = new HashMap<>();
-    static Map<String, BufferedWriter> user_to_buffwriter = new HashMap<>();
-
-    static ArrayList<Room> rooms = new ArrayList<>();
+    // 유저들과 통신을 해주는 중앙 서버임.
+    // 데이터베이스 또한 Server 에서만 접근이 가능함. (클라이언트에선 접근 불가능)
+    static Map<UUID, String> user_token_Map = new HashMap<>(); // 생성된 토큰을 관리하는 해시맵
+    static Map<String, BufferedWriter> user_to_buffwriter = new HashMap<>(); // 로그인시 userID : BufferedWriter 를 맵으로 보관함 (지속적인 통신을 위함)
 
     public static void main(String[] args) throws IOException {
-        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test_user_1");
-        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_2");
-        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000003"), "test_user_3");
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test_user_1"); // 테스트 토큰입니다.
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000002"), "test_user_2"); // 테스트 토큰입니다.
+        user_token_Map.put(UUID.fromString("00000000-0000-0000-0000-000000000003"), "test_user_3"); // 테스트 토큰입니다.
 
         ServerSocket listener = new ServerSocket(35014);
 
@@ -56,13 +56,13 @@ public class Server {
                         JSONObject receive_json = new JSONObject(input);
 
                         JSONObject response = new JSONObject();
-                        response.put("status", 400);
-                        response.put("body", "Server Do Nothing");
+                        response.put("status", 400); // 기본값
+                        response.put("body", "Server Do Nothing");  // 기본값
                         if (receive_json.getString("command").equals("LOGIN")) {
                             response = login(receive_json);
                             answerToClient(response);
-                            user_to_buffwriter.put(logged_in_user_id, out);
-                        } else {    // Socket 유지 할 필요 없음
+                            user_to_buffwriter.put(logged_in_user_id, out); // 로그인은 소켓을 닫지 않고 해당 쓰레드로 소켓을 유지한 후, 유저에게 broadcast 가야할 수 있으니 해쉬맵으로 저장해둠.
+                        } else {    // Socket 유지 할 필요 없음 (답장후 소켓 종료)
                             if (receive_json.getString("command").equals("REGISTER")) {
                                 response = register(receive_json);
                             }
@@ -138,14 +138,19 @@ public class Server {
                 broadout.write(response_json.toString());
                 broadout.newLine();
                 broadout.flush();
+
+                // user_to_buffwriter 해쉬맵에서 to_user 의 아이디를 키로 하여 BufferWriter 를 받고
+                // JSONObject 를 해당 유저에게 broadcast 한다.
             }
         }
 
         public void answerToClient(JSONObject response) throws IOException {
+            // 클라이언트에게 응답을 전송하는 함수임
 
             out.write(response.toString());
             out.newLine();
             out.flush();
+
 
             System.out.println("result 전송함: " + response.toString());
         }
@@ -160,6 +165,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 가입시 서버 데이터베이스에 user 테이블에 정보를 저장함.
             String query = "INSERT INTO user (user_id, password, name, nickname, email, birthday, isOnline, last_online)\n" +
                     "VALUES ( ?, ?, ?, ?, ?, ?, 0, ?);";
 
@@ -175,10 +181,10 @@ public class Server {
             int updateResult = ps.executeUpdate();
 
 
-            if (updateResult > 0) {
+            if (updateResult > 0) { // 가입 성공
                 response.put("status", 200);
                 response.put("body", "Register Success");
-            } else {
+            } else { // 가입 실패
                 response.put("status", 400);
                 response.put("body", "Register failed");
             }
@@ -230,6 +236,7 @@ public class Server {
             response.put("status", 400);
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 친구 추가 하는 쿼리
             String query = "INSERT INTO friend (from_user_id, to_user_id)\n" +
                     "VALUES ( ?, ?);";
 
@@ -266,18 +273,22 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 클라이언트가 유저의 온라인 유무가 업데이트 됐다고 서버에 알리면 데이터베이스에 접근해서 isonline 을 수정해줌.
             String query = "update user set isOnline = ? where user_id = ?";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, receive_json.getString("isOnline"));
             ps.setString(2, userid);
             ps.executeUpdate();
 
+            // 클라이언트가 유저의 온라인 유무가 업데이트 됐다고 서버에 알리면 데이터베이스에 접근해서 last_online 을 수정해줌.
             String query2 = "update user set last_online = ? where user_id = ?";
             PreparedStatement ps2 = con.prepareStatement(query2);
             ps2.setString(1, localDateTimeFormat);
             ps2.setString(2, userid);
             ps2.executeUpdate();
 
+
+            // 해당 유저를 친구로 가지고 있는 유저들을 알아냄 (broadcast 하기 위해서)
             String query3 = "select from_user_id FROM friend WHERE to_user_id=?;";
             PreparedStatement ps3 = con.prepareStatement(query3);
             ps3.setString(1, userid);
@@ -288,6 +299,8 @@ public class Server {
             while (rs.next()) {
                 String from_user_id = rs.getString("from_user_id");
                 broadcast(from_user_id, res_broadcast);
+                // 해당 유저를 친구로 가지고 있는 유저들을에게 info가 바뀌었다고 알림
+
             }
 
             con.close();
@@ -305,6 +318,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 유저의 친구를 불러옴.
             String query = "select to_user_id FROM friend WHERE from_user_id =?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, userid);
@@ -317,6 +331,7 @@ public class Server {
                 PreparedStatement ps2 = con.prepareStatement(query2);
                 ps2.setString(1, rs.getString("to_user_id"));
                 ResultSet rs2 = ps2.executeQuery();
+                // 해당 친구의 자세한 정보를 불러옴 (user 테이블에서)
 
                 while (rs2.next()) {
                     HashMap<String, String> userinfo = new HashMap<>();
@@ -398,6 +413,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // user가 접속되어있는 방을 가져옴
             String query = "select room_id FROM has_room WHERE user_id =?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, userid);
@@ -448,6 +464,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // user의 모든 id를 가져옴
             String query = "select user_id FROM user";
             PreparedStatement ps = con.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
@@ -484,7 +501,7 @@ public class Server {
             LocalDateTime localDateTime = LocalDateTime.now();
             String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
-
+            // 초대 상대를 has_room 에 추가하고 IsAccept = 0 으로 하여 수락 대기 상태로 만든다.
             String query2 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
             PreparedStatement ps2 = con.prepareStatement(query2);
             ps2.setString(1, userid);
@@ -558,6 +575,7 @@ public class Server {
             LocalDateTime localDateTime = LocalDateTime.now();
             String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
+            // 방을 만든다. 그리고 상대방은 IsAccept = 0 상태로 has_room 테이블에 저장한다.
             String query = "INSERT INTO room (last_time)" +
                     "VALUES (?);";
             PreparedStatement ps = con.prepareStatement(query);
@@ -570,6 +588,7 @@ public class Server {
             while (rs.next()) {
                 int created_room_id = rs.getInt(1);
 
+                // 방을 만든다. 그리고 나는 IsAccept = 1 상태로 has_room 테이블에 저장한다.
                 String query2 = "INSERT INTO has_room (user_id, room_id, IsAccept) VALUES (?, ?, 1);";
                 PreparedStatement ps2 = con.prepareStatement(query2);
                 ps2.setString(1, userid);
@@ -588,6 +607,7 @@ public class Server {
                     }
 
                     for (String user : userList) {
+                        // 방을 만든다. 그리고 상대방은 IsAccept = 0 상태로 has_room 테이블에 저장한다.
                         String query3 = "INSERT INTO has_room (user_id, room_id) VALUES (?, ?);";
                         PreparedStatement ps3 = con.prepareStatement(query3);
                         ps3.setString(1, user);
@@ -629,6 +649,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 초대를 수락하면 has_room 에서 IsAccept 를 1로 만들어 수락 상태로 저장한다.
             String query = "UPDATE has_room SET IsAccept = 1 WHERE room_id = ? AND user_id = ?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, room_id);
@@ -660,6 +681,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 수락 거절하면 IsAccept = 0 으로 설정한다.
             String query = "UPDATE has_room SET IsAccept = 0 WHERE room_id = ? AND user_id = ?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, room_id);
@@ -714,6 +736,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 특정 유저의 info를 가져옴
             String query2 = "select * FROM user WHERE user_id =?;";
             PreparedStatement ps2 = con.prepareStatement(query2);
             ps2.setString(1, userid);
@@ -750,6 +773,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 유저 정보를 변경하는 쿼리
             String query2 = "update user set nickname = ?, status_message = ? where user_id = ?;";
             PreparedStatement ps2 = con.prepareStatement(query2);
             ps2.setString(1, receive_json.getString("nickname"));
@@ -790,6 +814,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // has_room 중에 IsAccept 를 한 유저들을 가져와서 해당 유저에게 broadcast 할 준비를 함.
             String query = "select user_id FROM has_room WHERE room_id=? AND IsAccept = 1;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, room_id);
@@ -798,6 +823,7 @@ public class Server {
             LocalDateTime localDateTime = LocalDateTime.now();
             String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
 
+            // 보낸 사람의 정보를 자세히 알기 위해 user 테이블에 조회함.
             String query2 = "select * FROM user WHERE user_id =?;";
             PreparedStatement ps2 = con.prepareStatement(query2);
             ps2.setString(1, sender_id);
@@ -843,6 +869,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 내가 가진 방 목록을 가져옴
             String query = "select room_id FROM has_room WHERE user_id=?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, user_id);
@@ -895,6 +922,7 @@ public class Server {
 
             Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
 
+            // 방을 나간 경우 해당 유저의 has_room 에서 해당 방 데이터를 없앤다.
             String query = "DELETE FROM has_room WHERE user_id = ? AND room_id = ?;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, userid);
@@ -905,6 +933,7 @@ public class Server {
             if (res > 0) {
                 System.out.println(userid + " leave room from : (room_id: " + room_id + ")");
 
+                // 방을 나갔다는 것을 유저들에게 broadcast 하기 위해 해당 방에 존재하는 유저들을 가져온다.
                 String query2 = "SELECT DISTINCT user_id FROM has_room WHERE room_id=? AND IsAccept = 1;";
                 PreparedStatement ps2 = con.prepareStatement(query2);
                 ps2.setInt(1, room_id);
@@ -916,6 +945,7 @@ public class Server {
 
                 JSONObject leave_broadcast = new JSONObject();
 
+                // 해당 (나간) 유저의 자세한 정보를 가져온다.
                 String query3 = "select * FROM user WHERE user_id =?;";
                 PreparedStatement ps3 = con.prepareStatement(query3);
                 ps2.setString(1, userid);
@@ -948,6 +978,7 @@ public class Server {
                 while(rs2.next()){
                     String to_user_id = rs2.getString("user_id");
                     broadcast(to_user_id, leave_broadcast);
+                    // 나갔다고 해당 방에 존재하는 사람에게 알림
                 }
 
 
