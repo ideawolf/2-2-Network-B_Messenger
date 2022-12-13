@@ -69,4 +69,5 @@
 - request: {"room_id":8,"time":"2022-12-13T19:12:48.746219","body":"test_user_3 leave room 8","command":"someone_leave","leave_user_id":"test_user_3"}
 - response :
   1. 나간 사람 : {"body":"Ok","status":200}
-  2. 해당 방에 존재하는 사람 : {"room_id":8,"time":"2022-12-13T19:12:48.746219","body":"test_user_3 leave room 8","command":"someone_leave","leave_user_id":"test_user_3"}
+  2. 해당 방에 존재하는 사람 : {"room_id":8,"time":"2022-12-13T20:50:06.444183","body":"test_user_3 leave room 8","command":"someone_leave","leave_user_id":"test_user_3"}
+
