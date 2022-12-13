@@ -53,6 +53,14 @@ public class Always_Connect_Thread extends Thread {
                     if(!response.getString("sender").equals(chatMain.USER.getId()))
                         chatMain.receiveMessage(response);
                 }
+                if(response.get("command").equals("someone_leave"))
+                {
+                    if(response.getInt("remain") == 1)
+                    {
+                        chatMain.deleteRoom(response.getInt("room_id"));
+                    }
+                    chatMain.leftMessage(response);
+                }
             }
 
         } catch (Exception e){

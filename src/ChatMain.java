@@ -87,6 +87,8 @@ public class ChatMain extends JFrame {
     }
 
     public void deleteRoom(int room_id) {
+        JOptionPane.showOptionDialog(null, "채팅방에 남은 인원이 없습니다.", "채팅 종료",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"나가기"}, "나가기");
         chatRoom.get(room_id).dispose();
         chatRoom.remove(room_id);
     }
@@ -133,6 +135,11 @@ public class ChatMain extends JFrame {
 
     public void receiveMessage(JSONObject response) {
         chatRoom.get(response.getInt("room_id")).receiveMessage(response);
+    }
+
+    public void leftMessage(JSONObject response) {
+        if(chatRoom.get(response.getInt("room_id")) != null)
+            chatRoom.get(response.getInt("room_id")).leftMessage(response);
     }
 
     public static void main(String[] args) {

@@ -22,19 +22,59 @@ public class ChatRoom extends JFrame {
     public void receiveMessage(JSONObject response)
     {
         chatList.setText(chatList.getText() + "\n"
-                + response.getString("sender_name") + " : " + response.getString("body"));
+                + response.getString("body"));
+    }
+
+    public void leftMessage(JSONObject response)
+    {
+        chatList.setText(chatList.getText() + "\n"
+                + response.getString("leave_user_name") + "님이 나갔습니다.");
     }
 
     ChatRoom(int room_id, ClientUser user, ChatMain chatMain) {
         setSize(600, 540);
         setLayout(new FlowLayout());
         setBackground(Color.gray);
+        setTitle(room_id + "번방");
         USER = user;
 
         chatList = new JTextArea();
         chatList.setPreferredSize(new Dimension(560, 400));
         chatList.setEditable(false);
         chatList.setBackground(Color.white);
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("command", "SEND_MESSAGE");
+            json.put("access-token", USER.getAccessToken());
+
+            json.put("room_id", room_id);
+            json.put("msg", USER.getName() + "님이 들어오셨습니다.");
+
+
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+
+            JSONObject response = new  JSONObject(response_str);
+
+            System.out.println("reponse: " + response);
+
+            if(response.getInt("status") == 200)
+            {
+                chatList.setText(USER.getName() + "님이 들어오셨습니다.");
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
 
         JButton fileSendButton = new JButton(file_upload_img);
         fileSendButton.setPreferredSize(new Dimension(80, 80));
@@ -52,7 +92,7 @@ public class ChatRoom extends JFrame {
                 json.put("access-token", USER.getAccessToken());
 
                 json.put("room_id", room_id);
-                json.put("msg", sendArea.getText());
+                json.put("msg", USER.getName() + " : " + sendArea.getText());
 
 
 //            json.put("access-token", "00000000-0000-0000-0000-000000000001");
@@ -93,6 +133,30 @@ public class ChatRoom extends JFrame {
                 if (option == 0) {
                     e.getWindow().dispose();
                     // 채팅방을 나갔다는 알림을 서버에게 전해주기
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("command", "LEAVE_ROOM");
+                        json.put("access-token", USER.getAccessToken());
+                        json.put("room_id", room_id);
+
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+                        Socket socket = new Socket("localhost", 35014);
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                        out.write(json.toString());
+                        out.newLine();
+                        out.flush();
+
+                        String response_str = in.readLine();
+
+                        JSONObject response = new  JSONObject(response_str);
+
+                        System.out.println("response: " + response);
+
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });

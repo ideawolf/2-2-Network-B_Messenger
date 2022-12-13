@@ -812,10 +812,10 @@ public class Server {
                 res_broadcast.put("sender", sender_id);
                 res_broadcast.put("sender_name", sender_name);
                 res_broadcast.put("sender_nickname", sender_nickname);
+                res_broadcast.put("body", msg);
             }
 
             res_broadcast.put("command", "receive_message");
-            res_broadcast.put("body", msg);
             res_broadcast.put("room_id", room_id);
             res_broadcast.put("time", localDateTimeFormat);
             while (rs.next()) {
