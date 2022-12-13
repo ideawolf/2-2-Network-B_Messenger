@@ -9,6 +9,7 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Objects;
 
 import model.ClientUser;
@@ -25,6 +26,7 @@ public class ChatMain extends JFrame {
     private JLabel usernameLabel;
     private JLabel userNicknameLabel;
     private JLabel userStatusMessageLabel;
+    HashMap<Integer, ChatRoom> chatRoom = new HashMap<>();
 
     public void reloadFriendList() {
         USER.getFriendListInfo();
@@ -44,19 +46,64 @@ public class ChatMain extends JFrame {
         userStatusMessageLabel.setText(USER.getStatusMessage());
     }
 
+    public void deleteRoom(int room_id) {
+        chatRoom.get(room_id).dispose();
+        chatRoom.remove(room_id);
+    }
+
+    public void invited(int room_id) {
+        int option = JOptionPane.showOptionDialog(null, "채팅에 초대되었습니다.", "알림",
+                JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"거부", "수락"}, "수락");
+        try {
+            JSONObject json = new JSONObject();
+            if(option == 0)
+            {
+                json.put("command", "REJECT_INVITE");
+            }
+            else{
+                json.put("command", "ACCEPT_INVITE");
+            }
+            json.put("access-token", USER.getAccessToken());
+            json.put("room_id", room_id);
+
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+            Socket socket = new Socket("localhost", 35014);
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.write(json.toString());
+            out.newLine();
+            out.flush();
+
+            String response_str = in.readLine();
+
+            JSONObject response = new  JSONObject(response_str);
+
+            System.out.println("reponse: " + response);
+
+            if(response.getInt("status") == 200 && option == 1)
+            {
+                chatRoom.put(room_id, new ChatRoom());
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static void main(String[] args) {
         new ChatMain("00000000-0000-0000-0000-000000000001");
     }
 
-    ChatMain(String accessToken) {
+    ChatMain(String accessTk) {
         setSize(800, 600);
         setResizable(false);
         setLocationRelativeTo(null);
         setLayout(null);
         getContentPane().setBackground(Color.WHITE);
 
-        USER = new ClientUser(accessToken);
-        System.out.println(accessToken);
+        USER = new ClientUser(USER.getAccessToken());
+        System.out.println(USER.getAccessToken());
 
         // 내 정보
         // 상세정보 : Id, 이름, 별명, 오늘의 한마디
@@ -353,8 +400,36 @@ public class ChatMain extends JFrame {
 
             item2.addActionListener(e -> {
                 // 채팅 시작
-                if (friend.getString("isOnline").equals("0")) {
-                    new ChatRoom();
+                if (friend.getString("isOnline").equals("1")) {
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("command", "CREATE_ROOM");
+                        json.put("access-token", USER.getAccessToken());
+
+                        JSONArray invite_user_list = new JSONArray();
+                        invite_user_list.put(friend.getString("user_id"));
+                        json.put("userlist", invite_user_list);
+
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+                        Socket socket = new Socket("localhost", 35014);
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                        out.write(json.toString());
+                        out.newLine();
+                        out.flush();
+
+                        String response_str = in.readLine();
+
+                        JSONObject response = new  JSONObject(response_str);
+
+                        System.out.println("reponse: " + response);
+
+                        chatRoom.put(response.getInt("room_id"), new ChatRoom());
+
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
 
             });

@@ -105,6 +105,9 @@ public class Server {
                             if(receive_json.getString("command").equals("ACCEPT_INVITE")){
                                 response = accept_invite(receive_json);
                             }
+                            if(receive_json.getString("command").equals("REJECT_INVITE")){
+                                response = reject_invite(receive_json);
+                            }
 
                             answerToClient(response);
 
@@ -573,6 +576,8 @@ public class Server {
                             broadcast(user, invitedResponse);
                         }
                     }
+
+                    response.put("room_id", created_room_id);
                 }
 
             }
@@ -608,6 +613,60 @@ public class Server {
 
             if (res > 0) {
                 System.out.println(userid + " accepted invite from : (room_id: " + room_id + ")");
+            }
+
+            response.put("body", "Ok");
+            response.put("status", 200);
+
+            con.close();
+
+            return response;
+        }
+
+        public JSONObject reject_invite(JSONObject receive_json) throws SQLException, IOException {
+            JSONObject response = new JSONObject();
+            response.put("status", 400);
+
+            UUID access_token = UUID.fromString(receive_json.getString("access-token"));
+
+            String userid = user_token_Map.get(access_token);
+
+            int room_id = receive_json.getInt("room_id");
+
+            Connection con = DriverManager.getConnection("jdbc:sqlite:db.sqlite3");
+
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String localDateTimeFormat = localDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+
+            String query = "UPDATE has_room SET IsAccept = 0 WHERE room_id = ? AND user_id = ?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, room_id);
+            ps.setString(2, userid);
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println(userid + " rejected invite from : (room_id: " + room_id + ")");
+            }
+
+            String query2 = "select user_id FROM has_room WHERE room_id = ? AND IsAccept = 1;";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setInt(1, room_id);
+            ResultSet rs2 = ps2.executeQuery();
+
+            String query3 = "select count(user_id) FROM has_room WHERE room_id = ? AND IsAccept = 1;";
+            PreparedStatement ps3 = con.prepareStatement(query3);
+            ps3.setInt(1, room_id);
+            ResultSet rs3 = ps3.executeQuery();
+            int remainNum = rs3.getInt(1);
+
+            JSONObject res_broadcast = new JSONObject();
+            res_broadcast.put("command", "invite_rejected");
+            res_broadcast.put("remain", remainNum);
+            res_broadcast.put("room_id", room_id);
+            while (rs2.next()) {
+                String in_user_id = rs2.getString("user_id");
+                broadcast(in_user_id, res_broadcast);
             }
 
             response.put("body", "Ok");

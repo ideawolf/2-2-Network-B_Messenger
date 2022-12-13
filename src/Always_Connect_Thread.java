@@ -1,5 +1,6 @@
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 
 public class Always_Connect_Thread extends Thread {
@@ -29,6 +30,18 @@ public class Always_Connect_Thread extends Thread {
                 if(response.getString("command").equals("info_edited"))
                 {
                     chatMain.reloadFriendList();
+                }
+                if(response.getString("command").equals("invited"))
+                {
+                    chatMain.invited(response.getInt("room_id"));
+                }
+                if(response.getString("command").equals("invite_rejected"))
+                {
+                    System.out.println(response.getInt("remain"));
+                    if(response.getInt("remain") == 1)
+                    {
+                        chatMain.deleteRoom(response.getInt("room_id"));
+                    }
                 }
             }
 
