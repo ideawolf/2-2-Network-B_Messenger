@@ -123,12 +123,16 @@ public class ChatMain extends JFrame {
 
             if(response.getInt("status") == 200 && option == 1)
             {
-                chatRoom.put(room_id, new ChatRoom(room_id));
+                chatRoom.put(room_id, new ChatRoom(room_id, USER));
             }
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public void receiveMessage(JSONObject response) {
+        chatRoom.get(response.getInt("room_id")).receiveMessage(response);
     }
 
     public static void main(String[] args) {
@@ -465,7 +469,7 @@ public class ChatMain extends JFrame {
 
                         System.out.println("response: " + response);
 
-                        chatRoom.put(response.getInt("room_id"), new ChatRoom(response.getInt("room_id")));
+                        chatRoom.put(response.getInt("room_id"), new ChatRoom(response.getInt("room_id"), USER));
 
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);

@@ -1,20 +1,36 @@
+import model.ClientUser;
+import org.json.JSONObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.*;
 
 public class ChatRoom extends JFrame {
 
     ImageIcon file_upload_img = new ImageIcon("images/file_upload.png");
+    JTextArea chatList;
 
+    ClientUser USER;
 
+    public void receiveMessage(JSONObject response)
+    {
+        chatList.setText(chatList.getText() + "\n"
+                + response.getString("sender_name") + " : " + response.getString("body"));
+    }
 
-    ChatRoom(int room_id) {
+    ChatRoom(int room_id, ClientUser user) {
         setSize(600, 540);
         setLayout(new FlowLayout());
         setBackground(Color.gray);
+        USER = user;
 
-        JTextArea chatList = new JTextArea();
+        chatList = new JTextArea();
         chatList.setPreferredSize(new Dimension(560, 400));
         chatList.setEditable(false);
         chatList.setBackground(Color.white);
@@ -27,6 +43,42 @@ public class ChatRoom extends JFrame {
 
         JButton sendButton = new JButton("보내기");
         sendButton.setPreferredSize(new Dimension(80, 80));
+
+        sendButton.addActionListener(e -> {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("command", "SEND_MESSAGE");
+                json.put("access-token", USER.getAccessToken());
+
+                json.put("room_id", room_id);
+                json.put("msg", sendArea.getText());
+
+
+//            json.put("access-token", "00000000-0000-0000-0000-000000000001");
+                Socket socket = new Socket("localhost", 35014);
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                out.write(json.toString());
+                out.newLine();
+                out.flush();
+
+                String response_str = in.readLine();
+
+                JSONObject response = new  JSONObject(response_str);
+
+                System.out.println("reponse: " + response);
+
+                if(response.getInt("status") == 200)
+                {
+                    chatList.setText(chatList.getText() + "\n" + USER.getName() + " : " + sendArea.getText());
+                    sendArea.setText("");
+                }
+
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         add(chatList);
         add(fileSendButton);

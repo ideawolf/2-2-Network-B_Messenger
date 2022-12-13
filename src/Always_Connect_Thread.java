@@ -37,7 +37,6 @@ public class Always_Connect_Thread extends Thread {
                 }
                 if(response.getString("command").equals("invite_rejected"))
                 {
-                    System.out.println(response.getInt("remain"));
                     if(response.getInt("remain") == 1)
                     {
                         chatMain.deleteRoom(response.getInt("room_id"));
@@ -48,6 +47,11 @@ public class Always_Connect_Thread extends Thread {
                 }
                 if(response.getString("command").equals("file_send")) {
                     chatMain.sendFile();
+                }
+                if(response.get("command").equals("receive_message"))
+                {
+                    if(!response.getString("sender").equals(chatMain.USER.getId()))
+                        chatMain.receiveMessage(response);
                 }
             }
 

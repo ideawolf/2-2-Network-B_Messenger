@@ -811,7 +811,7 @@ public class Server {
                 res_broadcast.put("sender_nickname", sender_nickname);
             }
 
-            res_broadcast.put("command", "recieve_message");
+            res_broadcast.put("command", "receive_message");
             res_broadcast.put("body", msg);
             res_broadcast.put("room_id", room_id);
             res_broadcast.put("time", localDateTimeFormat);
