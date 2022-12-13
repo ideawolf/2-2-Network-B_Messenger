@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 //import com.auth0.jwt.JWT;
-import model.Room;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

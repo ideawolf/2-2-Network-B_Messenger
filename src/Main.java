@@ -4,7 +4,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-import model.Response;
 import org.json.JSONObject;
 
 public class Main {
